@@ -15,7 +15,13 @@ def gcd(a, b):
 		return b
 	
 	# else, continue
-	return euclidean_algorithm(b, remainder)
+	return gcd(b, remainder)
+
+def lcd(a, b):
+	""" Search the lowest positive integer than can be devide 
+		by 'a' and 'b'
+	"""
+	return (a*b) // gcd(a, b)
 
 
 def bezout(a, b, x = 0, prev_x = 1, y = 1, prev_y = 0):
@@ -33,33 +39,31 @@ def bezout(a, b, x = 0, prev_x = 1, y = 1, prev_y = 0):
 
 	# if remainder is 0, stop here : gcd found
 	if remainder == 0:
-		# search wich factor is negative and print the equation
-		x, y = find_negative_factor(a, b, x, y)
 		return b, x, y
 
 	# else, update x and y, and continue
 	quotient = a // b
 	prev_x, prev_y, x, y = x, y, quotient*x + prev_x, quotient*y + prev_y 
-	return extended_euclidean_algorithm(b, remainder, x, prev_x, y, prev_y)
+	return bezout(b, remainder, x, prev_x, y, prev_y)
  
 
 
-def find_negative_factor(a, b, x, y):
+def find_negative_factor(a, b, gcd, x, y):
 	""" Given 'a' and 'b', and the 2 factors 'x' and 'y'
 		found with the extended euclidean algorithm, 
 		search wich factor is negative in the bezout equation.
 
-		we want 1 = a * x + b * y
+		we want gcd(a, b) = a * x + b * y
 
 		This function print the result and return new 'x' and 'y'
 	"""
-	if a*x - b*y == 1:
+	if a*x - b*y == gcd:
 		y = -y
-	elif -a*x + b*y == 1:
+	elif -a*x + b*y == gcd:
 		x = -x
-	elif a*y - b*x == 1:
+	elif a*y - b*x == gcd:
 		x, y = y, -x
-	elif -a*y + b*x == 1:
+	elif -a*y + b*x == gcd:
 		x, y = -y, x
 	
 	if y > 0:
@@ -69,4 +73,11 @@ def find_negative_factor(a, b, x, y):
 
 	return x, y
 
+
+print(gcd(357, 561))
+print(lcd(60, 168))
+
+gcd, x, y = bezout(100, 35) 
+print("%d, %d, %d" % (gcd, x, y))
+print(find_negative_factor(100, 35, gcd, x, y))
 
