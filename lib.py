@@ -91,6 +91,19 @@ def is_prime(n):
 	return True
 
 
+def prime_decomposition(n, primes = []):
+	""" Find the prime numbers pn (recursively) so that
+		n = p1^a1 * p2^a2 * ... * pn^an
+	"""
+	if n <= 1:
+		return primes
+	
+	i = 2
+	while not (is_prime(i) and n % i == 0):
+		i += 1
+	primes.append(i)
+	return prime_decomposition(n // i, primes)
+
 
 print(gcd(357, 561))
 print(lcd(60, 168))
@@ -105,4 +118,6 @@ print(are_coprime(225,5))
 print(is_prime(7))
 print(is_prime(23))
 print(is_prime(10))
+
+print(prime_decomposition(2088))
 
