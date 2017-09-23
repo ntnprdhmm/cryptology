@@ -1,3 +1,5 @@
+from math import sqrt
+
 def gcd(a, b):
 	""" Calculate the greatest common divisor of 'a' and 'b' recusively
 		Using the euclidean algorithm
@@ -17,6 +19,7 @@ def gcd(a, b):
 	# else, continue
 	return gcd(b, remainder)
 
+
 def lcd(a, b):
 	""" Search the lowest positive integer than can be devide 
 		by 'a' and 'b'
@@ -32,7 +35,6 @@ def bezout(a, b, x = 0, prev_x = 1, y = 1, prev_y = 0):
 	# 'a' has to be greater than 'b'
 	if b > a:
 		a, b = b, a
-
 	
 	# calculate the remainder of a/b
 	remainder = a % b
@@ -45,7 +47,6 @@ def bezout(a, b, x = 0, prev_x = 1, y = 1, prev_y = 0):
 	quotient = a // b
 	prev_x, prev_y, x, y = x, y, quotient*x + prev_x, quotient*y + prev_y 
 	return bezout(b, remainder, x, prev_x, y, prev_y)
- 
 
 
 def find_negative_factor(a, b, gcd, x, y):
@@ -74,10 +75,34 @@ def find_negative_factor(a, b, gcd, x, y):
 	return x, y
 
 
+def are_coprime(a, b):
+	""" Two integers are coprime if their gcd is 1
+	"""
+	return gcd(a, b) is 1
+
+
+def is_prime(n):
+	""" A number is prime if it can be devide only by 1 and himself
+		Check from 2 to sqrt(n). After sqrt(n) the numbers are redondant
+	""" 
+	for i in range(2, int(sqrt(n))):
+		if n % i == 0:
+			return False
+	return True
+
+
+
 print(gcd(357, 561))
 print(lcd(60, 168))
 
-gcd, x, y = bezout(100, 35) 
-print("%d, %d, %d" % (gcd, x, y))
-print(find_negative_factor(100, 35, gcd, x, y))
+g, x, y = bezout(100, 35) 
+print("%d, %d, %d" % (g, x, y))
+print(find_negative_factor(100, 35, g, x, y))
+
+print(are_coprime(13,5))
+print(are_coprime(225,5))
+
+print(is_prime(7))
+print(is_prime(23))
+print(is_prime(10))
 
