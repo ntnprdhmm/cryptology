@@ -20,7 +20,7 @@ def gcd(a, b):
 	return gcd(b, remainder)
 
 
-def lcd(a, b):
+def lcm(a, b):
 	""" Search the lowest positive integer than can be devide
 		by 'a' and 'b'
 	"""
@@ -104,9 +104,6 @@ def prime_decomposition(n, primes = []):
 	primes.append(i)
 	return prime_decomposition(n // i, primes)
 
-
-print(gcd(357, 561))
-print(lcd(60, 168))
 
 g, x, y = bezout(100, 35)
 print("%d, %d, %d" % (g, x, y))
