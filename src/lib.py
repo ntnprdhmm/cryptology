@@ -105,10 +105,6 @@ def prime_decomposition(n, primes = []):
 	return prime_decomposition(n // i, primes)
 
 
-g, x, y = bezout(100, 35)
-print("%d, %d, %d" % (g, x, y))
-print(find_negative_factor(100, 35, g, x, y))
-
 print(are_coprime(13,5))
 print(are_coprime(225,5))
 

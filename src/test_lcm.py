@@ -2,7 +2,7 @@ import unittest
 
 from lib import lcm
 
-class TestLCD(unittest.TestCase):
+class TestLCM(unittest.TestCase):
 
     def test_normal_case(self):
         self.assertEqual(lcm(4, 6), 12)
