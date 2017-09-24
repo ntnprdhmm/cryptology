@@ -85,6 +85,9 @@ def is_prime(n):
 	""" A number is prime if it can be devide only by 1 and himself
 		Check from 2 to sqrt(n). After sqrt(n) the numbers are redondant
 	"""
+	if n == 1:
+		return False
+		
 	for i in range(2, int(sqrt(n))):
 		if n % i == 0:
 			return False
@@ -111,6 +114,4 @@ print(are_coprime(225,5))
 print(is_prime(7))
 print(is_prime(23))
 print(is_prime(10))
-
-print(prime_decomposition(9438))
 """
