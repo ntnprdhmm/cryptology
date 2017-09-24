@@ -87,7 +87,7 @@ def is_prime(n):
 	"""
 	if n == 1:
 		return False
-		
+
 	for i in range(2, int(sqrt(n))):
 		if n % i == 0:
 			return False
@@ -106,12 +106,3 @@ def prime_decomposition(n, primes = []):
 		i += 1
 	primes.append(i)
 	return prime_decomposition(n // i, primes)
-
-"""
-print(are_coprime(13,5))
-print(are_coprime(225,5))
-
-print(is_prime(7))
-print(is_prime(23))
-print(is_prime(10))
-"""
