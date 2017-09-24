@@ -1,5 +1,5 @@
 ## run tests
 
 ```
-python -m unittest discover
+py -m unittest discover src
 ```

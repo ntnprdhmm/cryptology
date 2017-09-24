@@ -104,7 +104,7 @@ def prime_decomposition(n, primes = []):
 	primes.append(i)
 	return prime_decomposition(n // i, primes)
 
-
+"""
 print(are_coprime(13,5))
 print(are_coprime(225,5))
 
@@ -112,4 +112,5 @@ print(is_prime(7))
 print(is_prime(23))
 print(is_prime(10))
 
-print(prime_decomposition(2088))
+print(prime_decomposition(9438))
+"""
