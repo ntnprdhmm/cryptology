@@ -1,4 +1,5 @@
 from math import sqrt
+from functools import reduce
 
 def gcd(a, b):
 	""" Calculate the greatest common divisor of 'a' and 'b' recusively
@@ -113,4 +114,28 @@ def inverse(n, mod):
 		using bezout identity
 	"""
 	gcd, x, y = bezout(n, mod)
+	return x
+
+
+def chinese_remainder_theorem(values, modulos):
+	""" Solve the following system of congruences
+			x = a1 (mod m1)
+			x = a2 (mod m2)
+			...
+			x = an (mod mn)
+
+		'values' is an array, which contains a1, a2, ..., an
+		'modules' is an array, which contains m1, m2, ..., mn
+
+		return 'x'
+	"""
+
+	M = reduce(lambda x, y: x * y, modulos, 1)
+	x = 0
+
+	# for each equation in the system
+	for i in range(len(modulos)):
+		Mi = M // modulos[i]
+		x += values[i] * Mi * inverse(Mi, modulos[i])
+
 	return x
