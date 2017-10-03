@@ -102,3 +102,16 @@ def prime_decomposition(n, primes = []):
 		i += 1
 	primes.append(i)
 	return prime_decomposition(n // i, primes)
+
+def exponentiation_by_squaring(n, exp):
+	""" Fast way to do Exponentiation, recursively
+	"""
+
+	# stop when exp is 1
+	if exp == 1:
+		return n
+
+	if exp % 2 == 1:
+		return n * exponentiation_by_squaring(n**2, (exp-1)//2)
+	else:
+		return exponentiation_by_squaring(n**2, exp//2)
