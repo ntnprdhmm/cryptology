@@ -4,20 +4,7 @@ def gcd(a, b):
 	""" Calculate the greatest common divisor of 'a' and 'b' recusively
 		Using the euclidean algorithm
 	"""
-
-	# 'a' has to be greater than 'b'
-	if b > a:
-		a, b = b, a
-
-	# calculate the remainder of a/b
-	remainder = a % b
-
-	# if remainder is 0, stop here : gcd found
-	if remainder == 0:
-		return b
-
-	# else, continue
-	return gcd(b, remainder)
+	return euclidean_algorithm(a, b)
 
 
 def lcm(a, b):
@@ -27,11 +14,16 @@ def lcm(a, b):
 	return (a*b) // gcd(a, b)
 
 
-def bezout(a, b, x = 0, prev_x = 1, y = 1, prev_y = 0):
-	""" Calculate the Bézout's identity of 'a' and 'b' recursively
-		Using the extended euclidean algorithm
+def bezout(a, b):
+	""" Calculate the Bézout's identity of 'a' and 'b'
 	"""
+	return euclidean_algorithm(a, b, extended=True)
 
+
+def euclidean_algorithm(a, b, x = 0, prev_x = 1, y = 1, prev_y = 0, extended=False):
+	""" Run the euclidean algorithm to calculate the gcd of a and b
+		If extended is True, calculate x and y for the Bézout's identity
+	"""
 	# 'a' has to be greater than 'b'
 	if b > a:
 		a, b = b, a
@@ -41,12 +33,16 @@ def bezout(a, b, x = 0, prev_x = 1, y = 1, prev_y = 0):
 
 	# if remainder is 0, stop here : gcd found
 	if remainder == 0:
-		return b, x, y
+		return (b, x, y) if extended else (b)
 
-	# else, update x and y, and continue
-	quotient = a // b
-	prev_x, prev_y, x, y = x, y, quotient*x + prev_x, quotient*y + prev_y
-	return bezout(b, remainder, x, prev_x, y, prev_y)
+	# else, continue
+	if extended:
+		# if extended, update x and y
+		quotient = a // b
+		prev_x, prev_y, x, y = x, y, quotient*x + prev_x, quotient*y + prev_y
+		return euclidean_algorithm(b, remainder, x, prev_x, y, prev_y, extended=True)
+	else:
+		return euclidean_algorithm(b, remainder)
 
 
 def find_negative_factor(a, b, gcd, x, y):
