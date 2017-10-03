@@ -23,6 +23,9 @@ def bezout(a, b):
 	if (a*x + b*y) != gcd:
 		x, y = y, x
 
+	# print Bezout identity
+	print("BEZOUT(%d, %d) : %d * %d + %d * %d = %d " % (a, b, x, a, y, b, gcd))
+
 	return gcd, x, y
 
 
@@ -91,10 +94,10 @@ def prime_decomposition(n, primes = []):
 	primes.append(i)
 	return prime_decomposition(n // i, primes)
 
+
 def exponentiation_by_squaring(n, exp):
 	""" Fast way to do Exponentiation, recursively
 	"""
-
 	# stop when exp is 1
 	if exp == 1:
 		return n
@@ -103,3 +106,11 @@ def exponentiation_by_squaring(n, exp):
 		return n * exponentiation_by_squaring(n**2, (exp-1)//2)
 	else:
 		return exponentiation_by_squaring(n**2, exp//2)
+
+
+def inverse(n, mod):
+	""" Calculate the inverse of 'n' modulo 'mod'
+		using bezout identity
+	"""
+	gcd, x, y = bezout(n, mod)
+	return x
