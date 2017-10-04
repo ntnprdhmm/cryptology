@@ -6,13 +6,13 @@ class TestPrimeDecomposition(unittest.TestCase):
 
     def test_simple_case(self):
         n = 9438
-        factors = prime_decomposition(n)
-        p = 1
-        for f in factors:
-            self.assertTrue(is_prime(f))
-            p *= f
-        self.assertEqual(p, n)
+        factors = prime_decomposition(n, [])
         self.assertEqual(factors, [2, 3, 11, 11, 13])
+
+    def test_simple_case_two(self):
+        n = 81
+        factors = prime_decomposition(n, [])
+        self.assertEqual(factors, [3, 3, 3, 3])
 
 if __name__ == '__main__':
     unittest.main()

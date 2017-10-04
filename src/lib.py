@@ -139,3 +139,20 @@ def chinese_remainder_theorem(values, modulos):
 		x += values[i] * Mi * inverse(Mi, modulos[i])
 
 	return x
+
+def phi(n):
+	""" Euler's totient function. Count the number of integer that
+		are relative primes with n in range [1, n-1]
+	"""
+
+	# if n is prime, all numbers < n are prime with it
+	if is_prime(n):
+		return n-1
+
+	# get the integers that are part of the prime decomposition of n
+	primes = list(set(prime_decomposition(n, [])))
+
+	result = n
+	for prime in primes:
+		result *= (1 - (1 /prime))
+	return int(result)
