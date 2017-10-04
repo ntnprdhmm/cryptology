@@ -140,8 +140,9 @@ def chinese_remainder_theorem(values, modulos):
 
 	return x
 
+
 def phi(n):
-	""" Euler's totient function. Count the number of integer that
+	""" Euler's totient function. Count the number of integers that
 		are relative primes with n in range [1, n-1]
 	"""
 
@@ -156,3 +157,24 @@ def phi(n):
 	for prime in primes:
 		result *= (1 - (1 /prime))
 	return int(result)
+
+
+def sieve_of_eratosthenes(n):
+	""" Search and return the integers lower or equals to 'n'
+	"""
+	primes = []
+	numbers = range(2, n+1)
+
+	# continu while there are numbers
+	while len(numbers):
+		# the first is a prime
+		primes.append(numbers[0])
+
+		# remove all the multiple of the first number
+		next_numbers = []
+		for i in range(1, len(numbers)):
+			if numbers[i] % numbers[0] > 0:
+				next_numbers.append(numbers[i])
+		numbers = next_numbers
+
+	return primes
