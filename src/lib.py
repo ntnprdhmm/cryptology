@@ -239,3 +239,15 @@ def miller_rabin_primality_test(n, k = 1):
 
 	# nothing showed that 'n' is composite
 	return True
+
+
+def read_file_per_block(filepath, k=1):
+	""" Read a file block per block of size 'n'
+		where n = k*8
+	"""
+	f = open(filepath)
+	while True:
+		data = f.read(k * 8)
+		if not data:
+			break
+		print(data)
