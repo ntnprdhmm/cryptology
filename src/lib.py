@@ -1,5 +1,6 @@
 from math import sqrt
 from functools import reduce
+from random import randint
 
 def gcd(a, b):
 	""" Calculate the greatest common divisor of 'a' and 'b' recusively
@@ -178,3 +179,18 @@ def sieve_of_eratosthenes(n):
 		numbers = next_numbers
 
 	return primes
+
+
+def fermat_primality_test(n, k = 1):
+	""" Probabilistic test to determine if 'n' is prime
+	"""
+
+	if n == 2 or n == 3:
+		return True
+
+	for _ in range(k):
+		a = randint(2, n-2)
+		if exponentiation_by_squaring(a, n-1) % n != 1:
+			return False
+
+	return True
