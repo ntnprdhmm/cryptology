@@ -184,13 +184,58 @@ def sieve_of_eratosthenes(n):
 def fermat_primality_test(n, k = 1):
 	""" Probabilistic test to determine if 'n' is prime
 	"""
+	if n < 2:
+		return False
 
-	if n == 2 or n == 3:
+	if n > 3:
+		for _ in range(k):
+			a = randint(2, n-2)
+			if exponentiation_by_squaring(a, n-1) % n != 1:
+				return False
+
+	return True
+
+
+def miller_rabin_primality_test(n, k = 1):
+	""" Probabilistic test to determine if 'n' is prime
+	"""
+	if n < 2:
+		return False
+
+	# special case
+	if n == 2:
 		return True
 
+	# ensure n is odd
+	if n % 2 == 0:
+		return False
+
+	# write n-1 as 2^s * d
+	# by repeatedly dividing n-1 by 2
+	s = 0
+	d = n - 1
+	while True:
+		quotient, remainder = divmod(d, 2)
+		if remainder == 1:
+			break
+		s += 1
+		d = quotient
+
+	def is_composite(a):
+		if exponentiation_by_squaring(a, d) % n == 1:
+			return False
+		for i in range(s):
+			if exponentiation_by_squaring(a, 2**i * d) % n == n-1:
+				return False
+		return True
+
+	# do k tests
 	for _ in range(k):
+		# pick random int
 		a = randint(2, n-2)
-		if exponentiation_by_squaring(a, n-1) % n != 1:
+		# check 'a' to see whether it is a witness for the compositeness of 'n'
+		if is_composite(a):
 			return False
 
+	# nothing showed that 'n' is composite
 	return True
