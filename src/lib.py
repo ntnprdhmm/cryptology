@@ -91,9 +91,10 @@ def prime_decomposition(n, primes = []):
 		return primes
 
 	i = 2
-	while not (is_prime(i) and n % i == 0):
+	while not n % i == 0:
 		i += 1
 	primes.append(i)
+	
 	return prime_decomposition(n // i, primes)
 
 
