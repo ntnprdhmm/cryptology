@@ -264,3 +264,25 @@ def vernam(M, K):
 
 	# return M encrypted with K
 	return utils.binary_to_utf8(C)
+
+
+def simple_lfsr(register, taps):
+	"""	Given a register and a list of tap
+		print all the successive states of the register
+	"""
+	R = register
+	print(R)
+	while 1:
+		# xor the taps
+		xor = 0
+		for tap in taps:
+			xor ^= int(R[tap])
+		# update R
+		R = str(xor) + R[:len(R)-1]
+		print(R)
+		# stop when R is the initial register
+		if R == register:
+			break
+
+#simple_lfsr('0110', [0, 1, 3])
+#simple_lfsr('011001', [0, 1, 3])
