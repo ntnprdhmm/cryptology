@@ -266,6 +266,27 @@ def vernam(M, K):
 	return utils.binary_to_utf8(C)
 
 
+def rc4(input, key):
+	""" RCA stream cypher
+	"""
+	output = [None] * len(input)
+	# key schedule
+	R = list(range(256))
+	j = 0
+	for i in range(256):
+		j = (j + R[i] + ord(key[i % len(key)])) & 0xFF
+		R[i], R[j] = R[j], R[i]
+	# generator
+	i = 0
+	j = 0
+	for n in range(len(input)):
+		i = (i + 1) & 0xFF
+		j = (j + R[i]) & 0xFF
+		R[i], R[j] = R[j], R[i]
+		output[n] = chr((ord(input[n]) ^ R[(R[i] + R[j]) & 0xFF]))
+
+	return ''.join(output)
+
 def simple_lfsr(register, taps):
 	"""	Given a register and a list of tap
 		print all the successive states of the register
