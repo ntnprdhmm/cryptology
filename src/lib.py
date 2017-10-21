@@ -270,6 +270,8 @@ def simple_lfsr(register, taps):
 	"""	Given a register and a list of tap
 		print all the successive states of the register
 	"""
+	states = {} # avoid infine loop on same states
+
 	R = register
 	print(R)
 	while 1:
@@ -281,8 +283,10 @@ def simple_lfsr(register, taps):
 		R = str(xor) + R[:len(R)-1]
 		print(R)
 		# stop when R is the initial register
-		if R == register:
+		if R == register or R in states:
 			break
+		# put this state in the dic
+		states[R] = 1
 
 #simple_lfsr('0110', [0, 1, 3])
 #simple_lfsr('011001', [0, 1, 3])
