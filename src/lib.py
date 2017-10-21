@@ -2,6 +2,8 @@ from math import sqrt
 from functools import reduce
 from random import randint
 
+import utils
+
 def gcd(a, b):
 	""" Calculate the greatest common divisor of 'a' and 'b' recusively
 		Using the euclidean algorithm
@@ -94,7 +96,7 @@ def prime_decomposition(n, primes = []):
 	while not n % i == 0:
 		i += 1
 	primes.append(i)
-	
+
 	return prime_decomposition(n // i, primes)
 
 
@@ -242,13 +244,5 @@ def miller_rabin_primality_test(n, k = 1):
 	return True
 
 
-def read_file_per_block(filepath, k=1):
-	""" Read a file block per block of size 'n'
-		where n = k*8
-	"""
-	f = open(filepath)
-	while True:
-		data = f.read(k * 8)
-		if not data:
-			break
-		print(data)
+def vernam(text, key):
+	pass
