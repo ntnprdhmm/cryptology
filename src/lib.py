@@ -268,7 +268,7 @@ def vernam(M, K):
 
 
 def rc4(input, key):
-	""" RCA stream cypher
+	""" RC4 stream cypher
 	"""
 	output = [None] * len(input)
 	# key schedule
@@ -319,7 +319,6 @@ def simple_caesar_cipher(message, k = 3):
 		encrypted message + (26 - encyption key) = message
 	"""
 	message = message.upper()
-	# prepare
 	alpha = string.ascii_uppercase
 	alpha_dic = {k: v for v, k in enumerate(alpha)}
 	# return the encrypted message
@@ -331,7 +330,18 @@ def monoalphabetic_substitution_cipher(message, plaintext_alphabet, ciphertext_a
 		uppercase alpha letters
 	"""
 	message = message.upper()
-	# create dic where key = letter and value = index
 	plaintext_alphabet_dic = {k: v for v, k in enumerate(plaintext_alphabet)}
 	# return the encrypted message
 	return ''.join([ciphertext_alphabet[plaintext_alphabet_dic[c]] for c in message])
+
+
+def affine_encryption(message, a, b):
+	""" Encryption function of the affine cypher
+
+		Ci = (a * Mi + b) mod 26
+	"""
+	message = message.upper()
+	alphabet = string.ascii_uppercase
+	alphabet_dic = {k: v for v, k in enumerate(string.ascii_uppercase)}
+	# return the encrypted message
+	return ''.join([alphabet[(a * alphabet_dic[c] + b) % 26] for c in message])
