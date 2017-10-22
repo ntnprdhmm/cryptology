@@ -1,5 +1,5 @@
 import sys
-from math import sqrt
+from math import sqrt, floor
 from functools import reduce
 from random import randint
 import string
@@ -346,6 +346,7 @@ def affine_encryption(message, a, b):
 	# return the encrypted message
 	return ''.join([alphabet[(a * alphabet_dic[c] + b) % 26] for c in message])
 
+
 def affine_decryption(encrypted_message, a, b):
 	""" Decryption function of the affine cypher
 
@@ -359,4 +360,60 @@ def affine_decryption(encrypted_message, a, b):
 	return ''.join([alphabet[(a_inverse * (alphabet_dic[c] - b)) % 26] for c in encrypted_message])
 
 
-print(affine_decryption("GSXPFZ", 7, 3))
+def affine_block_encryption(message, a, b):
+	""" Encryption function of the affine block cypher
+		blocks of size 2
+
+		Given Mi and M(i+1) = Mj
+		x = i * 26 + j
+		(a * x + b) mod 26^2 = Ci * 26 + Cj
+	"""
+	# make sure the message has an even length (because blocks of 2)
+	if len(message) % 2 == 1:
+		sys.exit("It's required that the message has an even length")
+
+	message = message.upper()
+	alphabet = string.ascii_uppercase
+	alphabet_dic = {k: v for v, k in enumerate(string.ascii_uppercase)}
+	# return the encrypted message
+	encrypted_message = ""
+	for i in range(0, len(message), 2):
+		# calculate the x in (ax + b)
+		x = (alphabet_dic[message[i]]*26) + alphabet_dic[message[i+1]]
+		E = (a * x + b) % 676
+		Ci = alphabet[E // 26]
+		Cj = alphabet[E % 26]
+		encrypted_message += Ci + Cj
+	return encrypted_message
+
+
+def affine_block_decryption(encrypted_message, a, b):
+	""" Decryption function of the affine block cypher
+		blocks of size 2
+
+		Given Ci and C(i+1) = Cj
+		y = i * 26 + j
+		D = a^-1 * (y - b) mod 26^2
+		Mi = D // 26
+		Mj = D % 26
+	"""
+	# make sure the message has an even length (because blocks of 2)
+	if len(encrypted_message) % 2 == 1:
+		sys.exit("It's required that the encrypted message has an even length")
+
+	encrypted_message = encrypted_message.upper()
+	alphabet = string.ascii_uppercase
+	alphabet_dic = {k: v for v, k in enumerate(string.ascii_uppercase)}
+	# return the encrypted message
+	message = ""
+	for i in range(0, len(encrypted_message), 2):
+		y = (alphabet_dic[encrypted_message[i]]*26) + alphabet_dic[encrypted_message[i+1]]
+		D = inverse(a, 676) * (y - b)
+		# mod 26^2
+		D -= floor(D/676) * 676
+		Mi = alphabet[D // 26]
+		Mj = alphabet[D % 26]
+
+		message += Mi + Mj
+
+	return message
