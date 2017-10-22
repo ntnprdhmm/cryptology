@@ -2,6 +2,7 @@ import sys
 from math import sqrt
 from functools import reduce
 from random import randint
+import string
 
 import utils
 
@@ -287,6 +288,7 @@ def rc4(input, key):
 
 	return ''.join(output)
 
+
 def simple_lfsr(register, taps):
 	"""	Given a register and a list of tap
 		print all the successive states of the register
@@ -309,5 +311,16 @@ def simple_lfsr(register, taps):
 		# put this state in the dic
 		states[R] = 1
 
-#simple_lfsr('0110', [0, 1, 3])
-#simple_lfsr('011001', [0, 1, 3])
+
+def simple_caesar_cipher(message, k = 3):
+	""" Caesar cipher implementation for uppercase alpha letters
+
+		message + encyption key = encrypted message
+		encrypted message + (26 - encyption key) = message
+	"""
+	message = message.upper()
+	# prepare
+	alpha = string.ascii_uppercase
+	alpha_dic = {k: v for v, k in enumerate(alpha)}
+	# return the encrypted message
+	return ''.join([alpha[(alpha_dic[c] + k) % 26] for c in message])
