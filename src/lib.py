@@ -324,3 +324,14 @@ def simple_caesar_cipher(message, k = 3):
 	alpha_dic = {k: v for v, k in enumerate(alpha)}
 	# return the encrypted message
 	return ''.join([alpha[(alpha_dic[c] + k) % 26] for c in message])
+
+
+def monoalphabetic_substitution_cipher(message, plaintext_alphabet, ciphertext_alphabet):
+	""" monoalphabetic substitution cipher implementation for
+		uppercase alpha letters
+	"""
+	message = message.upper()
+	# create dic where key = letter and value = index
+	plaintext_alphabet_dic = {k: v for v, k in enumerate(plaintext_alphabet)}
+	# return the encrypted message
+	return ''.join([ciphertext_alphabet[plaintext_alphabet_dic[c]] for c in message])
