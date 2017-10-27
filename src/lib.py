@@ -290,7 +290,7 @@ def rc4(input, key):
 
 
 def simple_lfsr(register, taps):
-	"""	Given a register and a list of tap
+	"""	Given a register and a list of taps
 		print all the successive states of the register
 	"""
 	states = {} # avoid infine loop on same states
@@ -306,6 +306,7 @@ def simple_lfsr(register, taps):
 		R = str(xor) + R[:len(R)-1]
 		print(R)
 		# stop when R is the initial register
+		# or when all states has been generated
 		if R == register or R in states:
 			break
 		# put this state in the dic
@@ -417,3 +418,26 @@ def affine_block_decryption(encrypted_message, a, b):
 		message += Mi + Mj
 
 	return message
+
+
+def feistel(M, K):
+	G = M[:(len(M)//2)]
+	D = M[len(M)//2:]
+
+	# 3 turns
+	for _ in range(3):
+		# encode with K
+		# F(Ki, Di) = Ki + Di mod(2^len(G))
+		f = utils.binary_sum(K, D).zfill(len(K))
+		f = f[len(f) - len(K):]
+
+		next_G = D
+		next_D = utils.binary_xor(G, f).zfill(len(K))
+		G, D = next_G, next_D
+
+		print(G + " " + D)
+
+		# update K (rotate by 2 on the left)
+		K = K[2:] + K[:2]
+
+	return G + D

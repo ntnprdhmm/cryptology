@@ -23,3 +23,13 @@ def binary_to_utf8(b):
     # then, convert each block from binary to decimal and from decimal to char
     # join the results
     return ''.join([chr(int(c, 2)) for c in list(b[i:i+block_size] for i in range(0, len(b), block_size))])
+
+def binary_sum(a, b):
+	""" Sum the binary numbers passed in parameters as strings
+	"""
+	return bin(int(a, 2) + int(b, 2))[2:]
+
+def binary_xor(a, b):
+	""" xor the binary numbers passed in parameters as strings
+	"""
+	return bin(int(a, 2) ^ int(b, 2))[2:]
