@@ -29,6 +29,11 @@ class LFSR:
         """
         return self.register[self.clocking_bit_index]
 
+    def output_bit(self):
+        """ return the output bit
+        """
+        return self.register[0]
+
     def __str__(self):
         """ Return a string that describe the LFSR
         """
