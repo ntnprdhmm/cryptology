@@ -17,11 +17,14 @@ class LFSR:
             xor ^= self.register[tap]
         return xor
 
-    def shift(self):
+    def shift(self, next_bit=None):
         """ shift the register
             generate the next value and remove the oldest
+
+            - next_bit: to use as next bit instead. If now, the next bit
+            will be the feedback of the LFSR
         """
-        self.register.insert(0, self.feedback())
+        self.register.insert(0, next_bit if next_bit else self.feedback())
         self.register.pop()
 
     def clocking_bit(self):

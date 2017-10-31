@@ -1,4 +1,4 @@
-import LFSR
+from LFSR import LFSR
 
 class A51:
 
@@ -14,11 +14,25 @@ class A51:
             key : 64-bit key
             fn  : 22-bit frame number
         """
-        self.key = key
-        self.fn = fn
-        # TODO: init the 3 LFSR with key and fn
+        self.key = [int(b) for b in key]
+        self.fn = [int(b) for b in fn]
+
+        # introduce the key in the system
+        for i in range(self.key_length):
+            self.r1.shift(self.r1.feedback() ^ self.key[i])
+            self.r2.shift(self.r2.feedback() ^ self.key[i])
+            self.r3.shift(self.r3.feedback() ^ self.key[i])
+
+        # introduce the frame number in the system
+        for i in range(self.fn_length):
+            self.r1.shift(self.r1.feedback() ^ self.fn[i])
+            self.r2.shift(self.r2.feedback() ^ self.fn[i])
+            self.r3.shift(self.r3.feedback() ^ self.fn[i])
 
     def output_bit(self):
         """ XOR the ouput bits of the 3 registers
         """
         return r1.output_bit() ^ r2.output_bit() ^ r3.output_bit()
+
+alg = A51()
+alg.init_lfsr("1111000011110000111100001111000011110000111100001111000011110000", "1100110011001100110001")
