@@ -33,3 +33,12 @@ def binary_xor(a, b):
 	""" xor the binary numbers passed in parameters as strings
 	"""
 	return bin(int(a, 2) ^ int(b, 2))[2:]
+
+def decimal_to_binary(n, l=None):
+	""" n: the decimal value
+		l: the number of bits for the binary representation
+	"""
+	b = bin(n)[2:]
+	if l != None:
+		b = b.zfill(l)
+	return b
