@@ -314,31 +314,6 @@ def monoalphabetic_substitution_cipher(message, plaintext_alphabet, ciphertext_a
 	return ''.join([ciphertext_alphabet[plaintext_alphabet_dic[c]] for c in message])
 
 
-def affine_encryption(message, a, b):
-	""" Encryption function of the affine cypher
-
-		Ci = (a * Mi + b) mod 26
-	"""
-	message = message.upper()
-	alphabet = string.ascii_uppercase
-	alphabet_dic = {k: v for v, k in enumerate(string.ascii_uppercase)}
-	# return the encrypted message
-	return ''.join([alphabet[(a * alphabet_dic[c] + b) % 26] for c in message])
-
-
-def affine_decryption(encrypted_message, a, b):
-	""" Decryption function of the affine cypher
-
-		Mi = (a^-1 * (Ci - b)) mod 26
-	"""
-	encrypted_message = encrypted_message.upper()
-	alphabet = string.ascii_uppercase
-	alphabet_dic = {k: v for v, k in enumerate(string.ascii_uppercase)}
-	# return the encrypted message
-	a_inverse = inverse(a, 26)
-	return ''.join([alphabet[(a_inverse * (alphabet_dic[c] - b)) % 26] for c in encrypted_message])
-
-
 def affine_block_encryption(message, a, b):
 	""" Encryption function of the affine block cypher
 		blocks of size 2

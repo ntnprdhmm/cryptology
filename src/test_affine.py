@@ -1,22 +1,18 @@
 import unittest
 
-from lib import affine_encryption, affine_decryption
+from Affine import Affine
 
 class TestAffine(unittest.TestCase):
 
-    def test_simple_encryption(self):
+    def test_simple(self):
         M = "troyes"
-        a = 7
-        b = 3
-        C = "GSXPFZ"
-        self.assertEqual(affine_encryption(M, a, b), C)
+        affine = Affine(a=7, b=3)
+        self.assertEqual(affine.decipher(affine.cipher(M)), M)
 
-    def test_simple_decryption(self):
-        M = "TROYES"
-        a = 7
-        b = 3
-        C = "GSXPFZ"
-        self.assertEqual(affine_decryption(C, a, b), M)
+    def test_harder(self):
+        M = "a5665sd648s4dSDFSFSDé\"$*****'---(___&&&)'"
+        affine = Affine(a=7, b=3)
+        self.assertEqual(affine.decipher(affine.cipher(M)), M)
 
 if __name__ == '__main__':
     unittest.main()
