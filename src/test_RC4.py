@@ -1,23 +1,26 @@
 import unittest
 
-from lib import rc4
+from RC4 import RC4
 
 class TestGCD(unittest.TestCase):
 
     def test_rc4_1(self):
         text = "wiki"
         key = "pedia"
-        self.assertEqual(rc4(text, key), "ÙÌîÃ")
+        rc4 = RC4(key)
+        self.assertEqual(rc4.cipher(text), "ÙÌîÃ")
 
     def test_rc4_2(self):
         text = "Plaintext"
         key = "Key"
-        self.assertEqual(rc4(text, key), "»ó\x16èÙ@¯\nÓ")
+        rc4 = RC4(key)
+        self.assertEqual(rc4.cipher(text), "»ó\x16èÙ@¯\nÓ")
 
     def test_rc4_decrypt(self):
         text = "Hello world 45 ! azeaze è&"
         key = "ALittleKey:3"
-        self.assertEqual(rc4(rc4(text, key), key), text)
+        rc4 = RC4(key)
+        self.assertEqual(rc4.cipher(rc4.cipher(text)), text)
 
 if __name__ == '__main__':
     unittest.main()
