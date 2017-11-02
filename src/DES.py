@@ -53,30 +53,33 @@ sBox[7] = (13,  2,  8,  4,  6, 15, 11,  1, 10,  9,  3, 14,  5,  0, 12,  7,
             2,  1, 14,  7,  4, 10,  8, 13, 15, 12,  9,  0,  3,  5,  6, 11)
 
 import utils
+from Feistel import Feistel
 
 class DES:
 
     def __init__(self, key):
         self.rounds = 16
+        # original key
         self.key = key
-        self.generate_subkeys()
-
-    def generate_subkeys(self):
         # 64-bits key to 56-bits permuted key
         self.permuted_key = ''.join([self.key[i] for i in PC1])
-        # split the 56-bits in 2 blocks
-        pk1 = self.permuted_key[:26]
-        pk2 = self.permuted_key[26:]
-        # generate the 16 subkeys
-        self.subkeys = []
-        for _ in range(16):
-            # rotate by one to the left each block
-            pk1 = pk1[1:] + pk1[0]
-            pk2 = pk2[1:] + pk2[0]
-            # generate the next subkey
-            key = pk1 + pk2
-            self.subkeys.append(''.join([key[i] for i in PC2]))
-        print(self.subkeys)
+
+    def generate_next_subkey(self, k):
+        """ From the current key
+            generate the new key (left rotation)
+            and the next subkey using the new key
+            return the new key and next subkey
+        """
+        # split the 56-bits key in 2 blocks
+        k_left = k[:26]
+        k_right = k[26:]
+        # rotate by one to the left each block
+        k_left = k_left[1:] + k_left[0]
+        k_right = k_right[1:] + k_right[0]
+        # generate the next subkey
+        new_k = k_left + k_right
+        # return new key and the subkey generated
+        return new_k, ''.join([new_k[i] for i in PC2])
 
     def expansion(self, m):
         """ Step 1:
@@ -127,18 +130,11 @@ class DES:
         # initial permutation
         m = [m[i] for i in IP]
         m = ''.join([str(b) for b in m])
-        # divide in 2 block of 32 bits
-        G = m[:(len(m)//2)]
-        D = m[len(m)//2:]
 
-        # 16 feistel rounds
-        for i in range(self.rounds):
-            f = self.F(self.subkeys[i], D)
-            next_G = D
-            next_D = utils.binary_xor(G, f).zfill(32)
-            G, D = next_G, next_D
+        # run the 16 feistel rounds
+        feistel = Feistel(m, self.permuted_key, self.F, self.generate_next_subkey)
+        c = feistel.run(self.rounds)
 
-        c = G + D
         # final permutation
         c = [c[i] for i in IPinv]
 

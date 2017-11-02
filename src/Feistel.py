@@ -19,10 +19,12 @@ class Feistel:
         return self.left + self.right
 
     def next_round(self):
-        # generate the next subkey
-        self.k = self.func_next_subkey(self.k)
+        """ Run the next Feistel round
+        """
+        # generate the next subkey and the new k
+        self.k, subkey = self.func_next_subkey(self.k)
         # calculate the result of func_F
-        f = self.func_F(self.k, self.right)
+        f = self.func_F(subkey, self.right)
         # calculate the new left and right
         next_left = self.right
         next_right = utils.binary_xor(self.left, f).zfill(len(self.m)//2)

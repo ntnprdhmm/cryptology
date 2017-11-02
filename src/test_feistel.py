@@ -11,7 +11,10 @@ class TestFeistel(unittest.TestCase):
             f = f[len(f) - len(K):]
             return f
         def next_key(K):
-            return K[2:] + K[:2]
+            new_K = K[2:] + K[:2]
+            return new_K, new_K
+            # because the subkey == the key
+            # but for DES, subkey != key
 
         M = "01000111010100110011000100110101"
         K = "1100000000111111"
