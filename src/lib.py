@@ -371,26 +371,3 @@ def affine_block_decryption(encrypted_message, a, b):
 		message += Mi + Mj
 
 	return message
-
-
-def feistel(M, K):
-	G = M[:(len(M)//2)]
-	D = M[len(M)//2:]
-
-	# 3 turns
-	for _ in range(3):
-		# encode with K
-		# F(Ki, Di) = Ki + Di mod(2^len(G))
-		f = utils.binary_sum(K, D).zfill(len(K))
-		f = f[len(f) - len(K):]
-
-		next_G = D
-		next_D = utils.binary_xor(G, f).zfill(len(K))
-		G, D = next_G, next_D
-
-		print(G + " " + D)
-
-		# update K (rotate by 2 on the left)
-		K = K[2:] + K[:2]
-
-	return G + D
