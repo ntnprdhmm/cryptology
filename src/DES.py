@@ -121,24 +121,30 @@ class DES:
         substituted = self.substitution(c)
         permuted = self.permutation(substituted)
 
-        return permuted
+        return ''.join([str(b) for b in permuted])
 
     def cipher(self, m):
         # initial permutation
         m = [m[i] for i in IP]
+        m = ''.join([str(b) for b in m])
         # divide in 2 block of 32 bits
-        G = M[:(len(M)//2)]
-        D = M[len(M)//2:]
+        G = m[:(len(m)//2)]
+        D = m[len(m)//2:]
 
         # 16 feistel rounds
-        for _ in range(self.rounds):
-            pass
+        for i in range(self.rounds):
+            f = self.F(self.subkeys[i], D)
+            next_G = D
+            next_D = utils.binary_xor(G, f).zfill(32)
+            G, D = next_G, next_D
 
+        c = G + D
         # final permutation
-        m = [m[i] for i in IPinv]
+        c = [c[i] for i in IPinv]
 
-        return m
+        return ''.join(c)
 
 
 des = DES("1100110011001100110011001100110011001100110011001100110011001100")
 #des.F("11111111000000001111111100000000")
+print(des.cipher("1111111100000000111111110000000011111111000000001111111100000000"))
