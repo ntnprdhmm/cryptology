@@ -266,31 +266,6 @@ def vernam(M, K):
 	# return M encrypted with K
 	return utils.binary_to_utf8(C)
 
-
-def simple_lfsr(register, taps):
-	"""	Given a register and a list of taps
-		print all the successive states of the register
-	"""
-	states = {} # avoid infine loop on same states
-
-	R = register
-	print(R)
-	while 1:
-		# xor the taps
-		xor = 0
-		for tap in taps:
-			xor ^= int(R[tap])
-		# update R
-		R = str(xor) + R[:len(R)-1]
-		print(R)
-		# stop when R is the initial register
-		# or when all states has been generated
-		if R == register or R in states:
-			break
-		# put this state in the dic
-		states[R] = 1
-
-
 def simple_caesar_cipher(message, k = 3):
 	""" Caesar cipher implementation for uppercase alpha letters
 

@@ -23,9 +23,12 @@ class LFSR:
 
             - next_bit: to use as next bit instead. If now, the next bit
             will be the feedback of the LFSR
+
+            return the new register
         """
         self.register.insert(0, next_bit if next_bit else self.feedback())
         self.register.pop()
+        return ''.join([str(b) for b in self.register])
 
     def clocking_bit(self):
         """ return the clocking bit
