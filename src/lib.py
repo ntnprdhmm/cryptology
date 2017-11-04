@@ -266,18 +266,6 @@ def vernam(M, K):
 	# return M encrypted with K
 	return utils.binary_to_utf8(C)
 
-def simple_caesar_cipher(message, k = 3):
-	""" Caesar cipher implementation for uppercase alpha letters
-
-		message + encyption key = encrypted message
-		encrypted message + (26 - encyption key) = message
-	"""
-	message = message.upper()
-	alpha = string.ascii_uppercase
-	alpha_dic = {k: v for v, k in enumerate(alpha)}
-	# return the encrypted message
-	return ''.join([alpha[(alpha_dic[c] + k) % 26] for c in message])
-
 
 def monoalphabetic_substitution_cipher(message, plaintext_alphabet, ciphertext_alphabet):
 	""" monoalphabetic substitution cipher implementation for

@@ -1,18 +1,20 @@
 import unittest
 
-from lib import simple_caesar_cipher
+from Caesar import Caesar
 
 class TestCaesar(unittest.TestCase):
 
-    def test_lowercase(self):
-        M = "troyes"
-        K = 22
-        self.assertEqual(simple_caesar_cipher(M, K), "PNKUAO")
+    def test_cipher(self):
+        M = "hello world !!!"
+        K = 125
+        caesar = Caesar(K)
+        self.assertNotEqual(caesar.cipher(M), M)
 
-    def test_reserve(self):
-        M = "CARTMAN"
-        K = 16
-        self.assertEqual(simple_caesar_cipher(simple_caesar_cipher(M, K), (26-K)), M)
+    def test_decipher(self):
+        M = "hello world 33 45 #ÉÉ~~^$!!!"
+        K = 213
+        caesar = Caesar(K)
+        self.assertEqual(caesar.decipher(caesar.cipher(M)), M)
 
 if __name__ == '__main__':
     unittest.main()
