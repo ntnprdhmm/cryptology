@@ -1,6 +1,6 @@
 import unittest
 
-from LFSR import LFSR
+from src.LFSR import LFSR
 
 class TestLFSR(unittest.TestCase):
 

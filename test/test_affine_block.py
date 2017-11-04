@@ -1,6 +1,6 @@
 import unittest
 
-from lib import affine_block_encryption, affine_block_decryption
+from src.lib import affine_block_encryption, affine_block_decryption
 
 class TestAffine(unittest.TestCase):
 

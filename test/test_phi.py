@@ -1,6 +1,6 @@
 import unittest
 
-from lib import phi
+from src.lib import phi
 
 class TestPhi(unittest.TestCase):
 

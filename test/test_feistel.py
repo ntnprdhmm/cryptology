@@ -1,6 +1,6 @@
 import unittest
-import utils
-from Feistel import Feistel
+from src import utils
+from src.Feistel import Feistel
 
 class TestFeistel(unittest.TestCase):
 

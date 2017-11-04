@@ -1,6 +1,6 @@
 import unittest
 
-from Affine import Affine
+from src.Affine import Affine
 
 class TestAffine(unittest.TestCase):
 

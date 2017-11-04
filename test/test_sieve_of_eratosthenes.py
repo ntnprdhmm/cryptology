@@ -1,6 +1,6 @@
 import unittest
 
-from lib import sieve_of_eratosthenes, phi
+from src.lib import sieve_of_eratosthenes, phi
 
 class TestSieveOfEratosthenes(unittest.TestCase):
 

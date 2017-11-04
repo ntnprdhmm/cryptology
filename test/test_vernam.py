@@ -1,6 +1,6 @@
 import unittest
 
-from lib import vernam
+from src.lib import vernam
 
 class TestGCD(unittest.TestCase):
 

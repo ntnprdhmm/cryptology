@@ -1,6 +1,6 @@
 import unittest
 
-from lib import prime_decomposition, is_prime
+from src.lib import prime_decomposition, is_prime
 
 class TestPrimeDecomposition(unittest.TestCase):
 

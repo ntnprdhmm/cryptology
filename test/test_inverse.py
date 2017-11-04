@@ -1,6 +1,6 @@
 import unittest
 
-from lib import inverse
+from src.lib import inverse
 
 class TestInverse(unittest.TestCase):
 

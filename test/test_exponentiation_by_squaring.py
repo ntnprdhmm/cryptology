@@ -1,6 +1,6 @@
 import unittest
 
-from lib import exponentiation_by_squaring
+from src.lib import exponentiation_by_squaring
 
 class TestExponentiationBySquaring(unittest.TestCase):
 

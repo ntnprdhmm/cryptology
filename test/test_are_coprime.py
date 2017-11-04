@@ -1,6 +1,6 @@
 import unittest
 
-from lib import are_coprime
+from src.lib import are_coprime
 
 class TestBezout(unittest.TestCase):
 

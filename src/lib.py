@@ -4,7 +4,7 @@ from functools import reduce
 from random import randint
 import string
 
-import utils
+from src import utils
 
 def gcd(a, b):
 	""" Calculate the greatest common divisor of 'a' and 'b' recusively

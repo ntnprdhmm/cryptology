@@ -1,6 +1,6 @@
 import unittest
 
-from Caesar import Caesar
+from src.Caesar import Caesar
 
 class TestCaesar(unittest.TestCase):
 

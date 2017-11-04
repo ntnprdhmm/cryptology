@@ -1,6 +1,6 @@
 import unittest
 
-from RC4 import RC4
+from src.RC4 import RC4
 
 class TestGCD(unittest.TestCase):
 
