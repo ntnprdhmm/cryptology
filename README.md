@@ -5,7 +5,7 @@ Cryptology
 ## Running the tests
 
 ```
-py -m unittest discover src
+py -m unittest discover test
 ```
 
 ## Author

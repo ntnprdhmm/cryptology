@@ -246,27 +246,6 @@ def miller_rabin_primality_test(n, k = 1):
 	return True
 
 
-def vernam(M, K):
-	""" plaintext xor key = ciphertext
-	 	ciphertext xor key = plaintext
-			- M is the text
-			- K is the key
-	"""
-	# make sure the key is at least as big as the message
-	if len(K) < len(M):
-		sys.exit("The key is smaller than the message")
-
-	# convert both message and key in binary
-	bM = utils.utf8_to_binary(M)
-	bK = utils.utf8_to_binary(K)
-
-	# c[i] = m[i] xor k[i]
-	C = ''.join([str(int(bM[i])^int(bK[i])) for i in range(len(bM))])
-
-	# return M encrypted with K
-	return utils.binary_to_utf8(C)
-
-
 def monoalphabetic_substitution_cipher(message, plaintext_alphabet, ciphertext_alphabet):
 	""" monoalphabetic substitution cipher implementation for
 		uppercase alpha letters
