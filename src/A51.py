@@ -1,4 +1,6 @@
 from LFSR import LFSR
+import os
+import utils
 
 class A51:
 
@@ -25,11 +27,12 @@ class A51:
         """
         return self.r1.output_bit() ^ self.r2.output_bit() ^ self.r3.output_bit()
 
-    def gen_sequence(self):
-        """ Generate a sequence of 114 bits
+    def gen_sequence(self, l = 114):
+        """ Generate a sequence of 'l' bits
+            By default, l is 114
         """
         sequence = []
-        for i in range(114):
+        for i in range(l):
             # check the clocking bit of each register
             # to determine the majority bit
             c = {0:0, 1:0}
@@ -51,6 +54,32 @@ class A51:
 
         return ''.join([str(b) for b in sequence])
 
+    def encrypt_pgm_asset(self, asset_name):
+        path = os.path.abspath('assets') + '/'
+        input_file = open(path + asset_name + '.pgm', 'rb')
+        lines = input_file.readlines()
+
+        # file content (to encrypt)
+        for i in range(3, len(lines)):
+            binary_line = ''.join([utils.decimal_to_binary(n, 8) for n in lines[i]])
+            lines[i] = utils.binary_xor(binary_line, self.gen_sequence(len(binary_line)))
+            print(i)
+
+        # write result in file
+        output_file = open(path + 'encrypted_' + asset_name + '.pgm', 'w')
+        for i in range(3):
+            print(lines[i].decode("utf-8"))
+            output_file.write(lines[i].decode("utf-8"))
+        for i in range(3, len(lines)):
+            print(len(lines[i]))
+            print(len(lines[i]) / 8)
+            line = ''.join([chr(utils.binary_to_decimal(lines[i][j:j+8])) for j in range(0, len(lines[i]), 8)])
+            output_file.write(line)
+
 alg = A51()
 alg.init_lfsr("1111000011110000111100001111000011110000111100001111000011110000")
-print(alg.gen_sequence())
+alg.encrypt_pgm_asset('lena')
+
+alg = A51()
+alg.init_lfsr("1111000011110000111100001111000011110000111100001111000011110000")
+alg.encrypt_pgm_asset('encrypted_lena')

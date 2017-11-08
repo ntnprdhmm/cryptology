@@ -30,3 +30,9 @@ def decimal_to_binary(n, l=None):
 	if l != None:
 		b = b.zfill(l)
 	return b
+
+def binary_to_decimal(n):
+    try:
+        return int(n, 2)
+    except:
+        return 0
