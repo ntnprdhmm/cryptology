@@ -1,3 +1,5 @@
+import sys
+
 def utf8_to_binary(text):
     """ Convert unicode (utf-8) text to binary
     """
@@ -33,7 +35,10 @@ def decimal_to_binary(n, l=None):
 	return b
 
 def binary_to_decimal(n):
-    try:
-        return int(n, 2)
-    except:
-        return 0
+    """ Convert a number from binary to decimal
+    """
+    return int(n, 2)
+
+def print_loading(step, steps):
+    sys.stdout.write("\rloading: %d%%" % ((step/steps)*100))
+    sys.stdout.flush()
