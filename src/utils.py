@@ -18,9 +18,10 @@ def binary_sum(a, b):
 	return bin(int(a, 2) + int(b, 2))[2:]
 
 def binary_xor(a, b):
-	""" xor the binary numbers passed in parameters as strings
-	"""
-	return bin(int(a, 2) ^ int(b, 2))[2:]
+    """ xor the binary numbers passed in parameters as strings
+    """
+    initial_len = len(a)
+    return bin(int(a, 2) ^ int(b, 2))[2:].zfill(initial_len)
 
 def decimal_to_binary(n, l=None):
 	""" n: the decimal value

@@ -54,6 +54,13 @@ class A51:
 
         return ''.join([str(b) for b in sequence])
 
+    def encrypt(self, m):
+        """ Encrypt/Decrypt an utf-8 encoded string
+        """
+        binary_m = utils.utf8_to_binary(m)
+        binary_c = utils.binary_xor(binary_m, self.gen_sequence(len(binary_m)))
+        return utils.binary_to_utf8(binary_c)
+
     def encrypt_pgm_asset(self, asset_name):
         path = os.path.abspath('assets') + '/'
         input_file = open(path + asset_name + '.pgm', 'rb')
@@ -78,8 +85,9 @@ class A51:
 
 alg = A51()
 alg.init_lfsr("1111000011110000111100001111000011110000111100001111000011110000")
-alg.encrypt_pgm_asset('lena')
-
+c = alg.encrypt('lena')
+print(c)
 alg = A51()
 alg.init_lfsr("1111000011110000111100001111000011110000111100001111000011110000")
-alg.encrypt_pgm_asset('encrypted_lena')
+m = alg.encrypt(c)
+print(m)
