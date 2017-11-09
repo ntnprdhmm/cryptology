@@ -2,6 +2,9 @@ from LFSR import LFSR
 import os
 import utils
 
+input_path = os.path.abspath('assets') + '/'
+output_path = os.path.abspath('outputs') + '/'
+
 class A51:
 
     def __init__(self, key):
@@ -67,33 +70,33 @@ class A51:
         binary_c = utils.binary_xor(binary_m, self.gen_sequence(len(binary_m)))
         return utils.binary_to_utf8(binary_c)
 
-    def encrypt_pgm_asset(self, asset_name, output_name=None):
-        if not output_name:
-            output_name = 'encrypted_' + asset_name
+    def run_pgm(self, input_file, output_file):
+        # init the 3 lfsr
+        self.init_lfsr()
 
-        input_path = os.path.abspath('assets') + '/'
-        input_file = open(input_path + asset_name + '.pgm', 'rb')
-        lines = input_file.readlines()
+        f_in = open(input_file, 'rb')
+        lines = f_in.readlines()
 
-        # file content (to encrypt)
-        for i in range(3, len(lines)):
-            binary_line = ''.join([utils.decimal_to_binary(n, 8) for n in lines[i]])
-            lines[i] = utils.binary_xor(binary_line, self.gen_sequence(len(binary_line)))
-            utils.print_loading(i, len(lines) - 3)
+        f_out = open(output_file, 'wb')
+        for i in range(len(lines)):
+            lines[i] = bytearray(lines[i])
+            # cipher each byte
+            for j in range(len(lines[i])):
+                lines[i][j] ^= int(self.gen_sequence(8), 2)
+            f_out.write(lines[i])
 
-        # write result in file
-        output_path = os.path.abspath('outputs') + '/'
-        output_file = open(output_path + output_name + '.pgm', 'w')
-        for i in range(3):
-            output_file.write(lines[i].decode("utf-8"))
-        for i in range(3, len(lines)):
-            line = ''.join([chr(utils.binary_to_decimal(lines[i][j:j+8])) for j in range(0, len(lines[i]), 8)])
-            output_file.write(line)
 
 k = "1111000011110000111100001111000011110000111100001111000011110000"
 a51 = A51(k)
-#alg.encrypt_pgm_asset('lena')
-c = a51.run('prudywsh66')
-print(c)
-m = a51.run(c)
+a51.run_pgm(input_path + 'lena.pgm', output_path + 'enc_lena.pgm')
+a51.run_pgm(output_path + 'enc_lena.pgm', output_path + 'lena.pgm')
+
+"""
+m = '104 103 105  99  92  92  94 100 100  94  85  84  89 103 103  95 100 100  92  90  91 100  90  90  89  84  89  89  93  93  88  92  92  83  82  81  80  80  73  73  76  77  77  77  82  83  97  97  92  83  83  86  97  97  95  83  81  81  79  81  85  84  86  90  95  89  85  83  82  82  87  91  93  88  83  83  86  90 101  93  91  91  92  96 106 106 102  96  95  92  83  83  83  86  85  87  88  87  89  90  86  86  89  89  92 100  95  92  92  92  99 101 102 103 103 103  86  84  87  90  90  89  83  83  88  92  92  92  93  90  90  84  85  94 100  94  91  85  84  83  83  87  83  83  83  92  92  87  85  89  89  87  84  84  87  87  81  80  80  81  81  78  78  79  80  81  87  88  88  86  86  90  86  86  89  89  79  73  73  89  89  79  72  72  74  76  77  74  73  73  74  77  77  77  77  79  80  80  81  80  77  76  76  77  80  80  80  81  78  78  74  74  74  74  76  82  82  80  80  82  88  88  87  86  79  79  79  76  73  72  73  71  71  70  71  72  73  73  71  72  76  81  81  75  75  72  70  71  71  72\n 109 103 105 100  96  92  93  94  88  86  88  84  85  96  99  95  96 102  97  92  96 100  90  88  86  83  87  90  94  91  85  83  85  85  88  85  83  86  80  79  79  85  85  82  85  83  85  90  87  83  84  89  93  89  85  82  81  80  79  84  84  86  91  93  97  91  88  88  85  88  88  88  93  90  86  88  87  89 101  93  92  93  94  99 102  98  96  96  95  88  86  94 104  97  86  84  87  88  93  97  86  89  94  95  98 106 101  95  95  95 102 103 101 101 102 103  85  85  86  90  88  88  87  90  90  90  85  85  90  89  88  87  86  97 100  95  86  85  87  87  87  86  85  88  87  87  87  84  83  83  88  83  79  81  85  85  81  80  81  81  81  79  79  80  82  83  84  88  88  87  93  94  91  86  88  83  78  74  73  76  81  81  77  74  77  79  79  75  74  75  75  77  77  77  77  79  77  84  86  82  77  76  77  78  81  84  81  81  79  76  76  77  75  74  78  84  81  82  83  85  87  84  82  80  75  74  73  72  71  71  72  70  71  71  69  70  70  71  71  72  74  76  75  72  71  69  68  69  70  71'
 print(m)
+c = a51.run(m)
+print(c)
+m2 = a51.run(c)
+print(m2)
+print(m1==m2)
+"""
