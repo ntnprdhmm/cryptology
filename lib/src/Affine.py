@@ -1,4 +1,4 @@
-from src.lib import inverse
+from src.functions import inverse
 
 class Affine:
 

@@ -1,6 +1,6 @@
 import unittest
 
-from src.lib import lcm
+from src.functions import lcm
 
 class TestLCM(unittest.TestCase):
 

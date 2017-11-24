@@ -1,6 +1,6 @@
 import unittest
 
-from src.lib import miller_rabin_primality_test
+from src.functions import miller_rabin_primality_test
 
 class TestMillerRabinPrimalityTest(unittest.TestCase):
 

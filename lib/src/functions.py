@@ -30,7 +30,7 @@ def bezout(a, b):
 		x, y = y, x
 
 	# print Bezout identity
-	print("BEZOUT(%d, %d) : %d * %d + %d * %d = %d " % (a, b, x, a, y, b, gcd))
+	# print("BEZOUT(%d, %d) : %d * %d + %d * %d = %d " % (a, b, x, a, y, b, gcd))
 
 	return gcd, x, y
 

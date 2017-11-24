@@ -1,6 +1,6 @@
 import unittest
 
-from src.lib import chinese_remainder_theorem
+from src.functions import chinese_remainder_theorem
 
 class TestChineseRemainderTheorem(unittest.TestCase):
 

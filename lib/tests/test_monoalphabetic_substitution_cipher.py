@@ -1,7 +1,7 @@
 import unittest
 import string
 
-from src.lib import monoalphabetic_substitution_cipher
+from src.functions import monoalphabetic_substitution_cipher
 
 class TestMonoalphabeticSubstitutionCipher(unittest.TestCase):
 
