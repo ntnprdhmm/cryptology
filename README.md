@@ -1,7 +1,16 @@
 # Cryptology
 
-Cryptology algorithms in Python.
+Cipher algorithms and basics math functions for cryptology.
 
-## Author
+## Folders
 
-* Prudywsh
+* **assets** - images or other files that can be used to test some cipher algorithms.
+* **outputs** - ciphered/deciphered assets
+* **src** - functions and classes (math, cipher algorithms, helpers, ..)
+* **tests** - unit tests
+
+## Run the tests
+
+```
+py -m unittest discover tests
+```
