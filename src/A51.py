@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 """ This module contains the A5/1 class
@@ -10,18 +10,18 @@ from src.LFSR import LFSR
 class A51(object):
     """ A5/1 stream cipher implementation
 
-    Attributes:
-        key_length -- int -- the length of the key
-        key -- list of int -- the key's bits
-        rg1 -- None or LFSR -- the LFSR 1
-        rg2 -- None or LFSR -- the LFSR 2
-        rg3 -- None or LFSR -- the LFSR 3
+        Attributes:
+            key_length -- int -- the length of the key
+            key -- list of int -- the key's bits
+            rg1 -- None or LFSR -- the LFSR 1
+            rg2 -- None or LFSR -- the LFSR 2
+            rg3 -- None or LFSR -- the LFSR 3
     """
 
     def __init__(self, key):
         """
-        Args:
-            key -- string -- string containing 64 bits
+            Args:
+                key -- string -- string containing 64 bits
         """
         self.key_length = 64
         self.key = [int(b) for b in key]

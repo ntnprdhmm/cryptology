@@ -1,44 +1,90 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+""" This module contains many helper functions
+"""
+
 import sys
 
 def utf8_to_binary(text):
     """ Convert unicode (utf-8) text to binary
+
+        Args:
+            text -- string -- the text to convert
+
+        return the binary value of text
     """
     return ''.join("{0:08b}".format(ord(c)) for c in text)
 
-def binary_to_utf8(b):
+def binary_to_utf8(binary_text):
     """ Convert binary text to uncode text (utf-8)
+
+        Args:
+            binary_text -- string -- the binary string to convert
+
+        return the utf-8 text
     """
     block_size = 8
     # start by cutting the text in blocks of 8 bits
     # then, convert each block from binary to decimal and from decimal to char
     # join the results
-    return ''.join([chr(int(c, 2)) for c in list(b[i:i+block_size] for i in range(0, len(b), block_size))])
+    return ''.join([chr(int(c, 2)) for c in \
+                list(binary_text[i:i+block_size] for i in \
+                    range(0, len(binary_text), block_size))])
 
 def binary_sum(a, b):
-	""" Sum the binary numbers passed in parameters as strings
+    """ Sum the binary numbers passed in parameters as strings
+
+        Args:
+            a -- string
+            b -- string
+
+        return a + b in binary
 	"""
-	return bin(int(a, 2) + int(b, 2))[2:]
+    return bin(int(a, 2) + int(b, 2))[2:]
 
 def binary_xor(a, b):
     """ xor the binary numbers passed in parameters as strings
+
+        Args:
+            a -- string
+            b -- string
+
+        return a ^ b in binary
     """
     initial_len = len(a)
     return bin(int(a, 2) ^ int(b, 2))[2:].zfill(initial_len)
 
 def decimal_to_binary(n, l=None):
-	""" n: the decimal value
-		l: the number of bits for the binary representation
-	"""
-	b = bin(n)[2:]
-	if l != None:
-		b = b.zfill(l)
-	return b
+    """ Convert n from decimal to binary
+
+        Args:
+            n -- int -- the decimal value
+    		l -- int -- the number of bits for the binary representation
+
+        return the binary value of n
+    """
+    binary = bin(n)[2:]
+    if l != None:
+        binary = binary.zfill(l)
+    return binary
 
 def binary_to_decimal(n):
     """ Convert a number from binary to decimal
+
+        Args:
+            n -- string -- binary number
+
+        return decimal value of n
     """
     return int(n, 2)
 
 def print_loading(step, steps):
+    """ Print a loader in the console
+
+        Args:
+            step -- int -- current step
+            steps -- int -- total number of steps
+    """
     sys.stdout.write("\rloading: %d%%" % ((step/steps)*100))
     sys.stdout.flush()

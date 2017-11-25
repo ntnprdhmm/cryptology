@@ -1,7 +1,29 @@
-class LFSR:
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-    def __init__(self, name, taps, clocking_bit_index = None, length = None, seed = None):
+""" This module contains the LFSR class
+"""
+
+class LFSR(object):
+    """ Linear-feedback shift register implementation
+
+        Attributes:
+            name -- string -- LFSR's name
+            taps -- list -- bits used to generate the next bit
+            clocking_bit_index -- int -- clocking bit's index
+            length -- int -- LFSR's length
+            register -- list -- current bits of the LFSR
+    """
+
+    def __init__(self, name, taps, clocking_bit_index=None, length=None, seed=None):
         """
+            Args:
+                seed -- string -- seed to init the LFSR's register
+
+            Exemples:
+                r1 = LFSR(name="R1", length=19, taps=[13, 16, 17, 18], clocking_bit_index=8)
+                r2 = LFSR(name="R2", seed="1110101011011111011", taps=[13, 16, 17, 18],
+                          clocking_bit_index=8)
         """
         self.name = name
         self.taps = taps
@@ -21,8 +43,8 @@ class LFSR:
         """ shift the register
             generate the next value and remove the oldest
 
-            - next_bit: to use as next bit instead. If now, the next bit
-            will be the feedback of the LFSR
+            next_bit -- char -- shift with this bit instead of generating the next
+                bit if next_bit is set
 
             return the new register
         """
@@ -43,17 +65,9 @@ class LFSR:
     def __str__(self):
         """ Return a string that describe the LFSR
         """
-        s = ("LFSR %s\n" % self.name)
-        s += ("- length         : %d\n" % self.length)
-        s += ("- taps           : %s\n" % ' '.join([str(tap) for tap in self.taps]))
-        s += ("- clocking bit   : %d\n" % self.clocking_bit_index)
-        s += ("- register       : %s" % ' '.join([str(bit) for bit in self.register]))
-        return s
-
-"""
-r1 = LFSR(name="R1", length=19, taps=[13, 16, 17, 18], clocking_bit_index=8)
-r2 = LFSR(name="R2", seed="1110101011011111011", taps=[13, 16, 17, 18], clocking_bit_index=8)
-print(r2)
-r2.shift()
-print(r2)
-"""
+        string = ("LFSR %s\n" % self.name)
+        string += ("- length         : %d\n" % self.length)
+        string += ("- taps           : %s\n" % ' '.join([str(tap) for tap in self.taps]))
+        string += ("- clocking bit   : %d\n" % self.clocking_bit_index)
+        string += ("- register       : %s" % ' '.join([str(bit) for bit in self.register]))
+        return string

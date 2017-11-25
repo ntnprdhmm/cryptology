@@ -1,46 +1,69 @@
+#!/usr/bin/env python3
+# -*- coding:utf-8 -*-
+
+""" This module contains the Vernam class
+"""
+
+import sys
+
 from src import utils
 
-class Vernam:
+class Vernam(object):
+    """ Vernam cipher
+    """
 
-    def xor(self, T, K):
-        """ plaintext xor key = ciphertext
-    	 	ciphertext xor key = plaintext
-    			- T is the ciphertext or the plaintext
-    			- K is the key
+    @staticmethod
+    def xor(plaintext, key):
+        """ Using XOR, it's the same method to cipher and decipher
 
-            Using XOR, we can use the same method to cipher and decipher
+            Args:
+                plaintext -- string -- the text to xor
+                key -- string
     	"""
         # make sure the key is at least as big as the text
-        if len(K) < len(T):
+        if len(key) < len(plaintext):
             sys.exit("The key is smaller than the text")
 
-        # convert both text and key in binary
-        bT = utils.utf8_to_binary(T)
-        bK = utils.utf8_to_binary(K)
+        # convert both plaintext and key in binary
+        binary_text = utils.utf8_to_binary(plaintext)
+        binary_key = utils.utf8_to_binary(key)
 
-        # c[i] = t[i] xor k[i]
-        C = ''.join([str(int(bT[i])^int(bK[i])) for i in range(len(bT))])
+        # ciphertext[i] = plaintext[i] xor key[i]
+        ciphertext = ''.join([str(int(binary_text[i])^int(binary_key[i])) \
+                              for i in range(len(binary_text))])
 
-        return utils.binary_to_utf8(C)
+        return utils.binary_to_utf8(ciphertext)
 
+    @staticmethod
+    def cipher(plaintext, key):
+        """ Cipher the plaintext using the key
 
-    def cipher(self, M, K):
-        """ given a utf-8 plaintext M and a key K
+            Args:
+                plaintext -- string -- the text to cipher
+                key -- string
+
             return the ciphertext
         """
         # make sure the key is at least as big as the text
-        if len(K) < len(M):
+        if len(key) < len(plaintext):
             sys.exit("The key is smaller than the text")
 
-        return ''.join([chr((ord(M[i]) + ord(K[i])) & 0xFF) for i in range(len(M))])
+        return ''.join([chr((ord(plaintext[i]) + ord(key[i])) & 0xFF) \
+                        for i in range(len(plaintext))])
 
+    @staticmethod
+    def decipher(ciphertext, key):
+        """ Decipher the ciphertext using the key
 
-    def decipher(self, C, K):
-        """ given a utf-8 ciphertext C and a key K
+            Args:
+                ciphertext -- string -- the text to decipher
+                key -- string
+
             return the plaintext
         """
         # make sure the key is at least as big as the text
-        if len(K) < len(C):
+        if len(key) < len(ciphertext):
             sys.exit("The key is smaller than the text")
 
-        return ''.join([chr((ord(C[i]) - ord(K[i])) % 256) for i in range(len(C))])
+        return ''.join([chr((ord(ciphertext[i]) - ord(key[i])) % 256) \
+                        for i in range(len(ciphertext))])
