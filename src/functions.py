@@ -9,6 +9,39 @@ import string
 from math import sqrt, floor
 from random import randint
 
+def find_group_generators(n):
+    """ Find the generators of a cyclic group of order n
+
+        Start by finding all coprimes of n.
+        Then, for each i in range[1, n], test if it generates all coprimes of n
+
+        Args:
+            n -- int -- cyclic group's order
+
+        return the list of generators
+    """
+
+    coprimes = []
+
+    # find coprimes of n
+    for k in range(1, n):
+        if are_coprime(k, n):
+            coprimes.append(k)
+
+
+    generators = []
+
+    # find generators
+    for i in range(1, n):
+        temp = []
+        for j in range(1, n):
+            temp.append(i**j % n)
+
+        if len(set(temp)) == len(coprimes):
+            generators.append(i)
+
+    return generators
+
 def gcd(a, b):
     """ Calculate the gcd of a and b recursively, using euclidean_algorithm
 

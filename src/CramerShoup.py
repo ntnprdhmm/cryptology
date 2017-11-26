@@ -30,9 +30,3 @@ class CramerShoup(object):
         self.X = self.a1**x1 + self.a2**x2
         self.Y = self.a1**y1 + self.a2**y2
         self.W = self.a1**w
-
-c = CramerShoup()
-c.key_generation()
-print(c.X)
-print(c.Y)
-print(c.W)
