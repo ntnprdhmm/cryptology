@@ -154,6 +154,26 @@ def is_prime(n):
     return True
 
 
+def random_prime(start = 0, end = 500):
+    """ Return a random prime between start and end
+
+        Args:
+            start -- int -- lowest value for the prime number
+            end -- int -- biggest value for the prime number
+
+        return a prime number randomly picked
+    """
+    primes = sieve_of_eratosthenes(end)
+    i = 0
+    while i < len(primes) and primes[i] < start:
+        i += 1
+    primes = primes[i:]
+
+    if len(primes) == 0:
+        return 2
+
+    return primes[randint(0, len(primes))]
+
 def prime_decomposition(n, primes = []):
     """ Find the prime numbers pn (recursively) so that
 		n = p1^a1 * p2^a2 * ... * pn^an
