@@ -5,22 +5,30 @@
 """
 
 import struct
+from src.functions import bytearray_xor, rotl
 
 class SHA1(object):
     """ SHA 1 hash algorithm implementation
+
+        Attributes:
+            block_size -- int -- block size, in bytes
+            h -- list -- hash variables
     """
 
     def __init__(self):
-        # block size, in bytes
         self.block_size = 64
-        # init the hash variables
-        self.h = [0x67452301, 0xEFCDAB89, 0x98BADCFE, 0x10325476, 0xC3D2E1F0]
+        self.h = [0x67452301,
+                  0xEFCDAB89,
+                  0x98BADCFE,
+                  0x10325476,
+                  0xC3D2E1F0]
 
     def final_hash(self):
         """ Combine the 5 hash variables to produce the final hash
             return the 160 bits length hash
         """
-        return ''.join([str(h) for h in self.h])
+        #return ''.join([str(h) for h in self.h])
+        return rotl(self.h[0], 128) or rotl(self.h[1], 96) or rotl(self.h[2], 64) or rotl(self.h[3], 32) or self.h[4]
 
     def pad(self, arr):
         """
@@ -45,13 +53,12 @@ class SHA1(object):
 
         # add k*'0', with len(arr) + k = 56 (mod 64)
         # => to let 8 bytes (64 bits) for original text length
-        arr.append((56 - len(arr)) % 64)
+        arr.append(((7//8)*self.block_size - len(arr)) % self.block_size)
 
         # add the length of the original text
         arr += struct.pack(b'>Q', original_length)
 
         return arr
-
 
     def hash(self, text):
         # transform the string to an array of bytes
@@ -60,13 +67,49 @@ class SHA1(object):
         # add some padding if needed
         bytes_text = self.pad(bytes_text)
 
-text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod \
-tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, \
-quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. \
-Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu \
-fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa \
-qui officia deserunt mollit anim id est laborum."
+        # process the text in blocks of 64 bits
+        for i in range(0, len(bytes_text), self.block_size):
+            w = []
+            # cut the block in 16 chunks of 4 bytes
+            for t in range(16):
+                w.append(bytes_text[i*self.block_size: (i+1)*self.block_size][t*4:(t+1)*4])
+            # => extend it to 80 chunks
+            for t in range(16, 80):
+                # w[t] = w[t-3] ^ w[t-8] ^ w[t-14] ^ w[t-16]
+                w.append(bytearray_xor(bytearray_xor(bytearray_xor(w[t-3], w[t-8]), w[t-14]), w[t-16]))
 
-SHA1 = SHA1()
-print(SHA1.hash(text))
-print(SHA1.final_hash())
+            # initialize hash value for this block
+            a = self.h[0]
+            b = self.h[1]
+            c = self.h[2]
+            d = self.h[3]
+            e = self.h[4]
+
+            # main loop
+            for i in range(80):
+                if i <= 19:
+                    f = (b and c) or ((not b) and d)
+                    k = 0x5A827999
+                elif i <= 39:
+                    f = b ^ c ^ d
+                    k = 0x6ED9EBA1
+                elif i <= 59:
+                    f = (b and c) or (b and d) or (c and d)
+                    k = 0x8F1BBCDC
+                else:
+                    f = b ^ c ^ d
+                    k = 0xCA62C1D6
+
+                temp = (rotl(a, 5)) + f + e + k + int.from_bytes(w[i], byteorder='big')
+                e = d
+                d = c
+                c = rotl(b, 30)
+                b = a
+                a = temp
+
+            # add the block hash to the result
+            self.h[0] += a
+            self.h[1] += b
+            self.h[2] += c
+            self.h[3] += d
+            self.h[4] += e

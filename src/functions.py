@@ -9,6 +9,29 @@ import string
 from math import sqrt, floor
 from random import randint
 
+def rotl(n, rotations=1):
+    """ binary rotation (left)
+
+        Args:
+            n -- int -- number to rotate
+            rotations -- int -- number of rotations
+    """
+    return n << rotations
+
+def bytearray_xor(b1, b2):
+    """ xor 2 bytearray
+
+        Args:
+            b1 -- bytearray
+            b2 -- bytearray
+
+        return a bytearray
+    """
+    result = bytearray()
+    for x, y in zip(b1, b2):
+        result.append(x ^ y)
+    return result
+
 def find_group_generators(n):
     """ Find the generators of a cyclic group of order n
 
