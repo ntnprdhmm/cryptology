@@ -53,7 +53,9 @@ class SHA1(object):
 
         # add k*'0', with len(arr) + k = 56 (mod 64)
         # => to let 8 bytes (64 bits) for original text length
-        arr.append(((7//8)*self.block_size - len(arr)) % self.block_size)
+        nb_zero_to_add = ((7*self.block_size)//8 - len(arr)) % self.block_size
+        for _ in range(nb_zero_to_add):
+            arr.append(0)
 
         # add the length of the original text
         arr += struct.pack(b'>Q', original_length)

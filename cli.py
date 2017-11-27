@@ -19,5 +19,5 @@ text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
 #19afa2a4a37462c7b940a6c4c61363d49c3a35f4
 
 SHA1 = SHA1()
-print(SHA1.hash(text))
+SHA1.hash(text)
 print(SHA1.final_hash())
