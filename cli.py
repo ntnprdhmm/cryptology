@@ -15,8 +15,9 @@ print(c.Y)
 print(c.W)
 """
 
-text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 #19afa2a4a37462c7b940a6c4c61363d49c3a35f4
+
 
 SHA1 = SHA1()
 SHA1.hash(text)

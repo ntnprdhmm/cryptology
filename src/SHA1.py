@@ -71,14 +71,13 @@ class SHA1(object):
 
         # process the text in blocks of 64 bits
         for i in range(0, len(bytes_text), self.block_size):
-            w = []
+            w = [0]*80
             # cut the block in 16 chunks of 4 bytes
             for t in range(16):
-                w.append(bytes_text[i*self.block_size: (i+1)*self.block_size][t*4:(t+1)*4])
+                w[t] = struct.unpack(b'>I', bytes_text[i:i+self.block_size][t*4:(t+1)*4])[0]
             # => extend it to 80 chunks
             for t in range(16, 80):
-                # w[t] = w[t-3] ^ w[t-8] ^ w[t-14] ^ w[t-16]
-                w.append(bytearray_xor(bytearray_xor(bytearray_xor(w[t-3], w[t-8]), w[t-14]), w[t-16]))
+                w[t] = (w[t-3] ^ w[t-8] ^ w[t-14] ^ w[t-16])
 
             # initialize hash value for this block
             a = self.h[0]
@@ -102,16 +101,17 @@ class SHA1(object):
                     f = b ^ c ^ d
                     k = 0xCA62C1D6
 
-                temp = (rotl(a, 5)) + f + e + k + int.from_bytes(w[i], byteorder='big')
+                temp = rotl(a, 5, limit=True) + f + e + k + w[i]
+                temp &= 0xffffffff
                 e = d
                 d = c
-                c = rotl(b, 30)
+                c = rotl(b, 30, limit=True)
                 b = a
                 a = temp
 
             # add the block hash to the result
-            self.h[0] += a
-            self.h[1] += b
-            self.h[2] += c
-            self.h[3] += d
-            self.h[4] += e
+            self.h[0] += (self.h[0] + a) & 0xffffffff
+            self.h[1] += (self.h[1] + a) & 0xffffffff
+            self.h[2] += (self.h[2] + a) & 0xffffffff
+            self.h[3] += (self.h[3] + a) & 0xffffffff
+            self.h[4] += (self.h[4] + a) & 0xffffffff
