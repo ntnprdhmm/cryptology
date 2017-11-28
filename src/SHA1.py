@@ -36,22 +36,19 @@ class SHA1(object):
 
             return stream, padded if needed
         """
-        original_length = len(stream)
-
         if len(stream) % 64 == 0:
             return stream
 
-        # append the bit 1
-        stream.append(0x80)
+        # get the original length in hexadecimal and split it in 8 bytes (list of 8 bytes)
+        original_length = [int((hex(len(stream)*8)[2:]).rjust(16, '0')[i:i+2], 16)
+                           for i in range(0, 16, 2)]
 
+
+        stream += bytes([0b10000000])
         # add k*'0', with len(stream) + k = 56 (mod 64)
-        # => to let 8 bytes (64 bits) for original text length
-        nb_zero_to_add = (56 - len(stream)) % 64
-        for _ in range(nb_zero_to_add):
-            stream.append(0)
-
-        # add the length of the original text
-        stream += struct.pack(b'>Q', original_length)
+        # to let 8 bytes (64 bits) for original length
+        stream += bytes(((56 - len(stream)) % 64) - 1)
+        stream += bytes(original_length)
 
         return stream
 
@@ -92,7 +89,7 @@ class SHA1(object):
             return the 40 bytes digest
         """
         # transform the string to an array of bytes and prepare it
-        stream = self._prepare(self._padding(bytearray(stream, 'utf-8')))
+        stream = self._prepare(self._padding(bytes(stream, 'utf-8')))
 
         for block in stream:
             self._process_block(block)
