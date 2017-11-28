@@ -9,17 +9,16 @@ import string
 from math import sqrt, floor
 from random import randint
 
-def rotl(n, rotations=1, limit=False):
+def rotl(n, rotations=1):
     """ binary rotation (left)
 
         Args:
             n -- int -- number to rotate,
             rotations -- int -- number of rotations
-            limit -- boolean -- if True, the result is on 8 bytes
 
         return n rotated
     """
-    return (n << rotations) & 0xffffffff if limit else (n << rotations)
+    return (n << rotations) & 0xffffffff
 
 def bytearray_xor(b1, b2):
     """ xor 2 bytearray

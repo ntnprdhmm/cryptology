@@ -27,8 +27,8 @@ class SHA1(object):
         """ Combine the 5 hash variables to produce the final hash
             return the 160 bits length hash
         """
-        #return ''.join([str(h) for h in self.h])
-        return rotl(self.h[0], 128) or rotl(self.h[1], 96) or rotl(self.h[2], 64) or rotl(self.h[3], 32) or self.h[4]
+        # we return 5 blocks of 8 hexadecimal digits
+        return '%08x%08x%08x%08x%08x' % (self.h[0], self.h[1], self.h[2], self.h[3], self.h[4])
 
     def pad(self, arr):
         """
@@ -71,47 +71,49 @@ class SHA1(object):
 
         # process the text in blocks of 64 bits
         for i in range(0, len(bytes_text), self.block_size):
-            w = [0]*80
-            # cut the block in 16 chunks of 4 bytes
-            for t in range(16):
-                w[t] = struct.unpack(b'>I', bytes_text[i:i+self.block_size][t*4:(t+1)*4])[0]
-            # => extend it to 80 chunks
-            for t in range(16, 80):
-                w[t] = (w[t-3] ^ w[t-8] ^ w[t-14] ^ w[t-16])
+            self.process_block(bytes_text[i:i+self.block_size])
 
-            # initialize hash value for this block
-            a = self.h[0]
-            b = self.h[1]
-            c = self.h[2]
-            d = self.h[3]
-            e = self.h[4]
+    def process_block(self, block):
+        w = [0]*80
+        # cut the block in 16 chunks of 4 bytes
+        for t in range(16):
+            w[t] = struct.unpack(b'>I', block[t*4:(t+1)*4])[0]
+        # => extend it to 80 chunks
+        for t in range(16, 80):
+            w[t] = rotl((w[t-3] ^ w[t-8] ^ w[t-14] ^ w[t-16]))
 
-            # main loop
-            for i in range(80):
-                if i <= 19:
-                    f = (b and c) or ((not b) and d)
-                    k = 0x5A827999
-                elif i <= 39:
-                    f = b ^ c ^ d
-                    k = 0x6ED9EBA1
-                elif i <= 59:
-                    f = (b and c) or (b and d) or (c and d)
-                    k = 0x8F1BBCDC
-                else:
-                    f = b ^ c ^ d
-                    k = 0xCA62C1D6
+        # initialize hash value for this block
+        a = self.h[0]
+        b = self.h[1]
+        c = self.h[2]
+        d = self.h[3]
+        e = self.h[4]
 
-                temp = rotl(a, 5, limit=True) + f + e + k + w[i]
-                temp &= 0xffffffff
-                e = d
-                d = c
-                c = rotl(b, 30, limit=True)
-                b = a
-                a = temp
+        # main loop
+        for i in range(80):
+            if i <= 19:
+                f = (b and c) or ((not b) and d)
+                k = 0x5A827999
+            elif i <= 39:
+                f = b ^ c ^ d
+                k = 0x6ED9EBA1
+            elif i <= 59:
+                f = (b and c) or (b and d) or (c and d)
+                k = 0x8F1BBCDC
+            else:
+                f = b ^ c ^ d
+                k = 0xCA62C1D6
 
-            # add the block hash to the result
-            self.h[0] += (self.h[0] + a) & 0xffffffff
-            self.h[1] += (self.h[1] + a) & 0xffffffff
-            self.h[2] += (self.h[2] + a) & 0xffffffff
-            self.h[3] += (self.h[3] + a) & 0xffffffff
-            self.h[4] += (self.h[4] + a) & 0xffffffff
+            T = (rotl(a, 5) + f + e + k + w[i]) & 0xffffffff
+            e = d
+            d = c
+            c = rotl(b, 30)
+            b = a
+            a = T
+
+        # add the block hash to the result
+        self.h[0] += (self.h[0] + a) & 0xffffffff
+        self.h[1] += (self.h[1] + a) & 0xffffffff
+        self.h[2] += (self.h[2] + a) & 0xffffffff
+        self.h[3] += (self.h[3] + a) & 0xffffffff
+        self.h[4] += (self.h[4] + a) & 0xffffffff
