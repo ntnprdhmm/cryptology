@@ -19,5 +19,4 @@ print(c.W)
 text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
 SHA1 = SHA1()
-SHA1.hash(text)
-print(SHA1.final_hash())
+print(SHA1.hash(text))

@@ -23,12 +23,16 @@ class SHA1(object):
                   0x10325476,
                   0xC3D2E1F0]
 
-    def final_hash(self):
+    def produce_digest(self):
         """ Combine the 5 hash variables to produce the final hash
             return the 160 bits length hash
         """
         # we return 5 blocks of 8 hexadecimal digits
-        return '%08x%08x%08x%08x%08x' % (self.h[0], self.h[1], self.h[2], self.h[3], self.h[4])
+        return '%08x%08x%08x%08x%08x' % (self.h[0] & 0xffffffff,
+                                         self.h[1] & 0xffffffff,
+                                         self.h[2] & 0xffffffff,
+                                         self.h[3] & 0xffffffff,
+                                         self.h[4] & 0xffffffff)
 
     def pad(self, arr):
         """
@@ -73,12 +77,15 @@ class SHA1(object):
         for i in range(0, len(bytes_text), self.block_size):
             self.process_block(bytes_text[i:i+self.block_size])
 
+        # return the digest
+        return self.produce_digest()
+
     def process_block(self, block):
         w = [0]*80
-        # cut the block in 16 chunks of 4 bytes
+        # cut the block in 16 words of 4 bytes
         for t in range(16):
             w[t] = struct.unpack(b'>I', block[t*4:(t+1)*4])[0]
-        # => extend it to 80 chunks
+        # => extend it to 80 words
         for t in range(16, 80):
             w[t] = rotl((w[t-3] ^ w[t-8] ^ w[t-14] ^ w[t-16]))
 
@@ -113,7 +120,7 @@ class SHA1(object):
 
         # add the block hash to the result
         self.h[0] += (self.h[0] + a) & 0xffffffff
-        self.h[1] += (self.h[1] + a) & 0xffffffff
-        self.h[2] += (self.h[2] + a) & 0xffffffff
-        self.h[3] += (self.h[3] + a) & 0xffffffff
-        self.h[4] += (self.h[4] + a) & 0xffffffff
+        self.h[1] += (self.h[1] + b) & 0xffffffff
+        self.h[2] += (self.h[2] + c) & 0xffffffff
+        self.h[3] += (self.h[3] + d) & 0xffffffff
+        self.h[4] += (self.h[4] + e) & 0xffffffff
