@@ -18,7 +18,7 @@ def rotl(n, rotations=1):
 
         return n rotated
     """
-    return (n << rotations) & 0xffffffff
+    return ((n << rotations) | (n >> (32 - rotations))) & 0xffffffff
 
 def bytearray_xor(b1, b2):
     """ xor 2 bytearray

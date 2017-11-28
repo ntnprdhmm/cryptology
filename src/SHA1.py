@@ -67,6 +67,14 @@ class SHA1(object):
         return arr
 
     def hash(self, text):
+        """
+            Hash the given text
+
+            Args:
+                text -- string -- the text to hash
+
+            return the 40 bytes digest
+        """
         # transform the string to an array of bytes
         bytes_text = bytearray(text, 'utf-8')
         # SHA-1 works with 512 bits blocks.
@@ -81,6 +89,12 @@ class SHA1(object):
         return self.produce_digest()
 
     def process_block(self, block):
+        """
+            Hash the current block and update the hash variable
+
+            Args:
+                block -- bytearray -- the block to hash
+        """
         w = [0]*80
         # cut the block in 16 words of 4 bytes
         for t in range(16):
