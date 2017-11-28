@@ -9,7 +9,7 @@ import string
 from math import sqrt, floor
 from random import randint
 
-def rotl(n, rotations=1):
+def rotl(n, rotations=1, w=32):
     """ binary rotation (left)
 
         Args:
@@ -18,7 +18,7 @@ def rotl(n, rotations=1):
 
         return n rotated
     """
-    return ((n << rotations) | (n >> (32 - rotations))) & 0xffffffff
+    return ((n << rotations) | (n >> w - rotations))
 
 def bytearray_xor(b1, b2):
     """ xor 2 bytearray

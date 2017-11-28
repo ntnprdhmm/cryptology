@@ -16,10 +16,10 @@ print(c.W)
 """
 
 # a3da7877f94ad4cf58636a395fff77537cb8b919
-text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+#text = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
 
 # 7c0a529d2e9e40f54944674b0de7e806fba33262
-#text = "Hello world !"
+text = "Hello world !"
 
 SHA1 = SHA1()
 print(SHA1.hash(text))

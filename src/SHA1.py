@@ -4,8 +4,7 @@
 """ This module contains the SHA1 class
 """
 
-import struct
-from src.functions import bytearray_xor, rotl
+from src.functions import rotl
 
 class SHA1(object):
     """ SHA 1 hash algorithm implementation
@@ -47,7 +46,7 @@ class SHA1(object):
         stream += bytes([0b10000000])
         # add k*'0', with len(stream) + k = 56 (mod 64)
         # to let 8 bytes (64 bits) for original length
-        stream += bytes(((56 - len(stream)) % 64) - 1)
+        stream += bytes(((56 - len(stream)) % 64))
         stream += bytes(original_length)
 
         return stream
@@ -96,17 +95,18 @@ class SHA1(object):
 
         return self.produce_digest()
 
+
     def _process_block(self, block):
         """
             Process the current block and update the hash variable
 
             Args:
-                block -- bytearray -- the block to hash
+                block -- list of int -- the block to hash
         """
         # => extend the block from 16 to 80 words
         w = block[:]
         for i in range(16, 80):
-            w.append(rotl((w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16])))
+            w.append(rotl(w[i-3] ^ w[i-8] ^ w[i-14] ^ w[i-16]) & self.mask)
 
         # initialize hash value for this block
         a, b, c, d, e = self._H[:]
@@ -114,32 +114,31 @@ class SHA1(object):
         # main loop
         for i in range(80):
             if i <= 19:
-                #f = (b and c) or ((not b) and d)
                 f = (b & c) ^ (~b & d)
-                k = 0x5A827999
+                k = 0x5a827999
             elif i <= 39:
                 f = b ^ c ^ d
-                k = 0x6ED9EBA1
+                k = 0x6ed9eba1
             elif i <= 59:
                 f = (b & c) ^ (b & d) ^ (c & d)
-                k = 0x8F1BBCDC
+                k = 0x8f1bbcdc
             else:
                 f = b ^ c ^ d
-                k = 0xCA62C1D6
+                k = 0xca62c1d6
 
-            T = (rotl(a, 5) + f + e + k + w[i]) & self.mask
+            T = ((rotl(a, 5) + f + e + k + w[i]) & self.mask)
             e = d
             d = c
-            c = rotl(b, 30)
+            c = rotl(b, 30) & self.mask
             b = a
             a = T
 
         # add the block hash to the result
-        self._H[0] += (self._H[0] + a) & self.mask
-        self._H[1] += (self._H[1] + b) & self.mask
-        self._H[2] += (self._H[2] + c) & self.mask
-        self._H[3] += (self._H[3] + d) & self.mask
-        self._H[4] += (self._H[4] + e) & self.mask
+        self._H[0] = (a + self._H[0]) & self.mask
+        self._H[1] = (b + self._H[1]) & self.mask
+        self._H[2] = (c + self._H[2]) & self.mask
+        self._H[3] = (d + self._H[3]) & self.mask
+        self._H[4] = (e + self._H[4]) & self.mask
 
     def produce_digest(self):
         """ Combine the 5 hash variables to produce the final hash
