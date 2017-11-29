@@ -5,7 +5,8 @@
 """
 
 from random import randint
-from src.functions import random_prime, find_group_generators
+from src.functions import random_prime, find_group_generators, exponentiation_by_squaring
+from src.SHA1 import SHA1
 
 class CramerShoup(object):
     """ CramerShoup implementation
@@ -51,3 +52,39 @@ class CramerShoup(object):
         W = g1**w
 
         return p, g1, g2, X, Y, W, x1, x2, y1, y2, w
+
+    @staticmethod
+    def hash(b1, b2, c):
+        """
+            Caculate the hash for the verification, using SHA1
+
+            Args:
+                b1 -- int
+                b2 -- int
+                c -- int
+
+            return string of 40 bytes (hexa number)
+        """
+        return SHA1().hash(str(b1) + str(b2) + str(c))
+
+    def cipher(self, m):
+        """
+            Cipher the given message
+
+            Args:
+                m -- int -- the message to cipher
+
+            return the cipher message, a tuple of 4 values
+        """
+        # Pick a random int, b, of Zp
+        b = randint(0, self.p-1)
+        # calculate b1 and b2
+        b1 = self.g1**b % self.p
+        b2 = self.g2**b % self.p
+        # cipher the message
+        c = (self.W**b) * m % self.p
+        # calculate the verification
+        beta = int(self.hash(b1, b2, c), 16) % self.p
+        v = ((self.X**b) * (self.Y**beta)) % self.p
+
+        return (b1, b2, c, v)

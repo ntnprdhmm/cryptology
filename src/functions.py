@@ -217,8 +217,7 @@ def prime_decomposition(n, primes = []):
 
     return prime_decomposition(n // i, primes)
 
-
-def exponentiation_by_squaring(n, exp):
+def exponentiation_by_squaring_recursive(n, exp):
     """ Fast way to do exponentiation, recursively
 
         Args:
@@ -235,6 +234,27 @@ def exponentiation_by_squaring(n, exp):
         return n * exponentiation_by_squaring(n**2, (exp-1)//2)
     else:
         return exponentiation_by_squaring(n**2, exp//2)
+
+def exponentiation_by_squaring(n, exp):
+    """ Fast way to do exponentiation
+
+        Args:
+            n -- int
+            exp -- int -- the exponent
+
+        return n**exp
+    """
+    y = 1
+    while exp > 1:
+        if exp % 2 == 1:
+            y *= n
+            n *= n
+            exp = (exp-1) // 2
+        else:
+            n **= 2
+            exp //= 2
+
+    return n * y
 
 
 def inverse(n, mod):
