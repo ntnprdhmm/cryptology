@@ -197,7 +197,7 @@ def random_prime(start = 0, end = 500):
     if len(primes) == 0:
         return 2
 
-    return primes[randint(0, len(primes))]
+    return primes[randint(0, len(primes)-1)]
 
 def prime_decomposition(n, primes = []):
     """ Find the prime numbers pn (recursively) so that

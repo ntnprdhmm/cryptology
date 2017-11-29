@@ -5,7 +5,8 @@
 """
 
 from random import randint
-from src.functions import random_prime, find_group_generators, exponentiation_by_squaring
+import sys
+from src.functions import random_prime, find_group_generators, exponentiation_by_squaring, inverse
 from src.SHA1 import SHA1
 
 class CramerShoup(object):
@@ -41,15 +42,15 @@ class CramerShoup(object):
         while g2 == g1:
             g2 = generators[randint(0, len(generators)-1)]
         # pick randomly 5 integers in range [0:P]
-        x1 = randint(0, p)
-        x2 = randint(0, p)
-        y1 = randint(0, p)
-        y2 = randint(0, p)
-        w = randint(0, p)
+        x1 = randint(0, p-1)
+        x2 = randint(0, p-1)
+        y1 = randint(0, p-1)
+        y2 = randint(0, p-1)
+        w = randint(0, p-1)
         # calculate X, Y and W
-        X = g1**x1 + g2**x2
-        Y = g1**y1 + g2**y2
-        W = g1**w
+        X = ((g1**x1) * (g2**x2)) % p
+        Y = ((g1**y1) * (g2**y2)) % p
+        W = (g1**w) % p
 
         return p, g1, g2, X, Y, W, x1, x2, y1, y2, w
 
@@ -79,12 +80,34 @@ class CramerShoup(object):
         # Pick a random int, b, of Zp
         b = randint(0, self.p-1)
         # calculate b1 and b2
-        b1 = self.g1**b % self.p
-        b2 = self.g2**b % self.p
+        b1 = (self.g1**b) % self.p
+        b2 = (self.g2**b) % self.p
         # cipher the message
-        c = (self.W**b) * m % self.p
+        c = ((self.W**b) * m) % self.p
         # calculate the verification
         beta = int(self.hash(b1, b2, c), 16) % self.p
-        v = ((self.X**b) * (self.Y**beta)) % self.p
+        v = ((self.X**b) * (self.Y**(b*beta))) % self.p
 
         return (b1, b2, c, v)
+
+    def decipher(self, b1, b2, c, v):
+        """
+            Decipher the given cipher message
+
+            Args:
+                b1 -- int
+                b2 -- int
+                c -- int
+                v -- int
+
+            return the decipher message
+        """
+        # verification step
+        beta = int(self.hash(b1, b2, c), 16) % self.p
+        v2 = ((b1**self.x1) * (b2**self.x2) * ((b1**self.y1 * b2**self.y2)**beta)) % self.p
+        if v != v2:
+            # if the verification is false, throw error
+            sys.exit("err: verification failed")
+
+        #return (c / (b1 * self.w))
+        return ((b1**(self.p - 1 - self.w)) * c) % self.p
