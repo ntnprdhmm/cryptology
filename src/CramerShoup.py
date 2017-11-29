@@ -6,7 +6,8 @@
 
 from random import randint
 import sys
-from src.functions import random_prime, find_group_generators, exponentiation_by_squaring, inverse
+from src.functions import (random_prime, find_group_generators, exponentiation_by_squaring, inverse)
+from src.utils import (write_in_file, list_to_string)
 from src.SHA1 import SHA1
 
 class CramerShoup(object):
@@ -28,6 +29,7 @@ class CramerShoup(object):
         self.max_prime = 500
         self.p, self.g1, self.g2, self.X, self.Y, self.W, self.x1, self.x2, \
             self.y1, self.y2, self.w = self.key_generation()
+        self.save_keys()
 
     def key_generation(self):
         """ Generate the keys
@@ -53,6 +55,12 @@ class CramerShoup(object):
         W = (g1**w) % p
 
         return p, g1, g2, X, Y, W, x1, x2, y1, y2, w
+
+    def save_keys(self):
+        # save the public key
+        write_in_file('cramer_shoup.pub', list_to_string([self.p, self.g1, self.g2, self.X, self.Y, self.W]))
+        # save the private key
+        write_in_file('cramer_shoup', list_to_string([self.x1, self.x2, self.y1, self.y2, self.w]))
 
     @staticmethod
     def hash(b1, b2, c):

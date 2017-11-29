@@ -5,6 +5,28 @@
 """
 
 import sys
+import os
+
+def write_in_file(filename, data):
+    """ Write content in a file ('outputs' directory)
+
+        Args:
+            filename -- string -- the output file name
+            data -- string -- the content to write in the file
+    """
+    f = open(os.path.abspath("outputs/" + filename), "w")
+    f.write(data)
+    f.close()
+
+def list_to_string(l):
+    """ Join all elements of the given list
+
+        Args:
+            l -- list
+
+        return a string
+    """
+    return ','.join([str(v) for v in l])
 
 def utf8_to_binary(text):
     """ Convert unicode (utf-8) text to binary
