@@ -6,36 +6,36 @@
 
 from random import randint
 import sys
-from src.functions import (random_prime, find_group_generators, exponentiation_by_squaring, inverse)
-from src.utils import (write_in_file, list_to_string)
+from src.functions import (random_prime, find_group_generators)
+from src.utils import (write_file, list_to_string, read_file)
 from src.SHA1 import SHA1
+
+MIN_PRIME = 100
+MAX_PRIME = 500
+FILE_NAME = 'cramer_shoup'
 
 class CramerShoup(object):
     """ CramerShoup implementation
-
-        Attributes:
-            p -- int -- a prime number
-            g1, g2 -- int -- two distinct generators of p
-            x1, x2, y1, y2, w -- int -- randomly picked numbers in range [0:p]
-            X -- int -- result of g1**x1 + g2**x2
-            Y -- int -- result of g1**y1 + g2**y2
-            W -- int -- result of g1**w
-
-        public key: (p, g1, g2, X, Y, W)
-        private key: (x1, x2, y1, y2, w)
     """
-    def __init__(self):
-        self.min_prime = 100
-        self.max_prime = 500
-        self.p, self.g1, self.g2, self.X, self.Y, self.W, self.x1, self.x2, \
-            self.y1, self.y2, self.w = self.key_generation()
-        self.save_keys()
 
-    def key_generation(self):
-        """ Generate the keys
+    @staticmethod
+    def key_generation():
+        """ Generate the keys, and save it into files
+
+            To calculate:
+                p -- int -- a prime number
+                g1, g2 -- int -- two distinct generators of p
+                x1, x2, y1, y2, w -- int -- randomly picked numbers in range [0:p]
+                X -- int -- result of g1**x1 + g2**x2
+                Y -- int -- result of g1**y1 + g2**y2
+                W -- int -- result of g1**w
+
+            To save in files:
+                public key: (p, g1, g2, X, Y, W)
+                private key: (x1, x2, y1, y2, w)
         """
         # start by generate randomly a prime number p
-        p = random_prime(self.min_prime, self.max_prime)
+        p = random_prime(MIN_PRIME, MAX_PRIME)
         # get the generators of p
         generators = find_group_generators(p)
         # pick 2 distinct generators randomly
@@ -54,16 +54,13 @@ class CramerShoup(object):
         Y = ((g1**y1) * (g2**y2)) % p
         W = (g1**w) % p
 
-        return p, g1, g2, X, Y, W, x1, x2, y1, y2, w
-
-    def save_keys(self):
         # save the public key
-        write_in_file('cramer_shoup.pub', list_to_string([self.p, self.g1, self.g2, self.X, self.Y, self.W]))
+        write_file(FILE_NAME + '.pub', list_to_string([p, g1, g2, X, Y, W]))
         # save the private key
-        write_in_file('cramer_shoup', list_to_string([self.x1, self.x2, self.y1, self.y2, self.w]))
+        write_file(FILE_NAME, list_to_string([x1, x2, y1, y2, w]))
 
     @staticmethod
-    def hash(b1, b2, c):
+    def _hash(b1, b2, c):
         """
             Caculate the hash for the verification, using SHA1
 
@@ -76,46 +73,49 @@ class CramerShoup(object):
         """
         return SHA1().hash(str(b1) + str(b2) + str(c))
 
-    def cipher(self, m):
+    @staticmethod
+    def cipher():
         """
-            Cipher the given message
+            Cipher the message with the public key
 
-            Args:
-                m -- int -- the message to cipher
-
-            return the cipher message, a tuple of 4 values
+            write the cipher message in a file
         """
+        # read the public key
+        p, g1, g2, X, Y, W = [int(v) for v in read_file(FILE_NAME + '.pub', 'outputs').split(',')]
+        # read the message
+        m = int(read_file(FILE_NAME + '.txt'))
         # Pick a random int, b, of Zp
-        b = randint(0, self.p-1)
+        b = randint(0, p-1)
         # calculate b1 and b2
-        b1 = (self.g1**b) % self.p
-        b2 = (self.g2**b) % self.p
+        b1 = (g1**b) % p
+        b2 = (g2**b) % p
         # cipher the message
-        c = ((self.W**b) * m) % self.p
+        c = ((W**b) * m) % p
         # calculate the verification
-        beta = int(self.hash(b1, b2, c), 16) % self.p
-        v = ((self.X**b) * (self.Y**(b*beta))) % self.p
+        beta = int(CramerShoup._hash(b1, b2, c), 16) % p
+        v = ((X**b) * (Y**(b*beta))) % p
 
-        return (b1, b2, c, v)
+        # write the ciphertext in a file
+        write_file(FILE_NAME + '.cipher', ','.join([str(v) for v in [b1, b2, c, v]]))
 
-    def decipher(self, b1, b2, c, v):
+    @staticmethod
+    def decipher():
         """
-            Decipher the given cipher message
-
-            Args:
-                b1 -- int
-                b2 -- int
-                c -- int
-                v -- int
+            Decipher the message with the private key
 
             return the decipher message
         """
+        # read the private and public keys
+        p, _, _, _, _, _ = [int(v) for v in read_file(FILE_NAME + '.pub', 'outputs').split(',')]
+        x1, x2, y1, y2, w = [int(v) for v in read_file(FILE_NAME, 'outputs').split(',')]
+        # read the cipher text
+        b1, b2, c, v = [int(v) for v in read_file(FILE_NAME + '.cipher', 'outputs').split(',')]
         # verification step
-        beta = int(self.hash(b1, b2, c), 16) % self.p
-        v2 = ((b1**self.x1) * (b2**self.x2) * ((b1**self.y1 * b2**self.y2)**beta)) % self.p
+        beta = int(CramerShoup._hash(b1, b2, c), 16) % p
+        v2 = ((b1**x1) * (b2**x2) * ((b1**y1 * b2**y2)**beta)) % p
         if v != v2:
             # if the verification is false, throw error
             sys.exit("err: verification failed")
 
-        #return (c / (b1 * self.w))
-        return ((b1**(self.p - 1 - self.w)) * c) % self.p
+        # write the decipher text in a file
+        write_file(FILE_NAME + '.decipher',  str(((b1**(p - 1 - w)) * c) % p))

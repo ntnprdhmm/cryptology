@@ -7,7 +7,20 @@
 import sys
 import os
 
-def write_in_file(filename, data):
+def read_file(filename, directory="assets", read_bytes=False):
+    """ Read the content of the given asset
+
+        Args:
+            filename -- string -- the file to read
+            directory -- string -- the directory name, at the project's root
+            read_bytes -- boolean -- if True, read bytes
+
+        return the content of the file
+    """
+    f = open(os.path.abspath(directory + "/" + filename), "rb" if read_bytes else "r")
+    return f.read()
+
+def write_file(filename, data):
     """ Write content in a file ('outputs' directory)
 
         Args:
