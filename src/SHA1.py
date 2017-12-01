@@ -87,8 +87,10 @@ class SHA1(object):
 
             return the 40 bytes digest
         """
-        # transform the string to an array of bytes and prepare it
-        stream = self._prepare(self._padding(bytes(stream, 'utf-8')))
+        # convert stream to bytes if needed
+        stream = bytes(stream, 'utf-8') if isinstance(stream, str) else stream
+        # prepare the stream for hashing
+        stream = self._prepare(self._padding(stream))
 
         for block in stream:
             self._process_block(block)
