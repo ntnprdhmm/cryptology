@@ -6,19 +6,60 @@
 
 import curses
 from src.SHA1 import SHA1
+from src.utils import read_file
 
 SCREEN = curses.initscr()
 
 def sha1_hash_message():
+    """ Ask the user to enter the text he wants to hash,
+        hash it, and print the result
+    """
     # clear the main menu
     SCREEN.clear()
 
-    SCREEN.addstr("Pleaser enter the message you want to hash:\n")
+    # header
+    SCREEN.addstr("HASH A MESSAGE WITH SHA-1\n")
+    SCREEN.addstr("\n")
+
+    SCREEN.addstr("Please enter the message you want to hash:\n")
     # read the text to hash
     s = SCREEN.getstr()
+    # print the text to hash
+    SCREEN.addstr("text: " + str(s)[2:-1] + "\n")
+    SCREEN.addstr("\n")
     # hash the text
     SCREEN.addstr("Hashing your text...\n")
     h = SHA1().hash(s)
+    # print the hash
+    SCREEN.addstr("\n")
+    SCREEN.addstr("Here's your hash: \n")
+    SCREEN.addstr(h)
+    # wait before redirect to main menu
+    wait_to_continu(main_menu=True)
+
+def sha1_hash_file():
+    """ Ask the user to enter the name of the file he wants to hash,
+        read the content of the file, hash it, and print the result
+    """
+    # clear the main menu
+    SCREEN.clear()
+
+    # header
+    SCREEN.addstr("HASH A FILE WITH SHA-1\n")
+    SCREEN.addstr("\n")
+
+    SCREEN.addstr("Please put your file in the 'assets' directory\n")
+    SCREEN.addstr("and enter the complete file name (with the extension):\n")
+    # read the file name
+    filename = str(SCREEN.getstr())[2:-1]
+    # print the filename
+    SCREEN.addstr("filename: " + filename + "\n")
+    SCREEN.addstr("\n")
+    # read the content of the file to hash
+    content = read_file(filename, read_bytes=True)
+    # hash the file
+    SCREEN.addstr("Hashing your file...\n")
+    h = SHA1().hash(content)
     # print the hash
     SCREEN.addstr("\n")
     SCREEN.addstr("Here's your hash: \n")
@@ -30,9 +71,10 @@ def cramer_shoup_cipher():
     pass
 
 MENU_ITEMS = [
-    ("1. Hash a message with SHA-1", sha1_hash_message),
-    ("2. Cipher a file with Cramer-Shoup", cramer_shoup_cipher),
-    ("3. Quit", lambda: None)
+    ("Hash a message with SHA-1", sha1_hash_message),
+    ("Hash a file with SHA-1", sha1_hash_file),
+    ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher),
+    ("Quit", lambda: None)
 ]
 
 def wait_to_continu(leave=False, main_menu=False):
@@ -77,7 +119,7 @@ def show_main_menu():
         for i, item in enumerate(MENU_ITEMS):
             if i == current_pos:
                 SCREEN.addstr(">> ")
-            SCREEN.addstr(item[0] + "\n")
+            SCREEN.addstr(str(i+1) + ". " + item[0] + "\n")
 
         # listen user's input
         key = SCREEN.getch()
