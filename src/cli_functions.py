@@ -10,7 +10,7 @@ from src.utils import read_file
 
 SCREEN = curses.initscr()
 
-def sha1_hash_message():
+def sha1_hash_text():
     """ Ask the user to enter the text he wants to hash,
         hash it, and print the result
     """
@@ -18,10 +18,10 @@ def sha1_hash_message():
     SCREEN.clear()
 
     # header
-    SCREEN.addstr("HASH A MESSAGE WITH SHA-1\n")
+    SCREEN.addstr("HASH A TEXT WITH SHA-1\n")
     SCREEN.addstr("\n")
 
-    SCREEN.addstr("Please enter the message you want to hash:\n")
+    SCREEN.addstr("Please enter the text you want to hash:\n")
     # read the text to hash
     s = SCREEN.getstr()
     # print the text to hash
@@ -34,6 +34,49 @@ def sha1_hash_message():
     SCREEN.addstr("\n")
     SCREEN.addstr("Here's your hash: \n")
     SCREEN.addstr(h)
+    # wait before redirect to main menu
+    wait_to_continu(main_menu=True)
+
+def check_sha1_hash_text():
+    """ Ask the user to enter a hash and the hashed text.
+        Check if it's the right text by hashing the text and comparing the 2 hashs.
+    """
+    # clear the main menu
+    SCREEN.clear()
+
+    # header
+    SCREEN.addstr("CHECK A TEXT'S SHA-1 HASH\n")
+    SCREEN.addstr("\n")
+
+    SCREEN.addstr("Please enter the true hash of the text:\n")
+    # read the true hash of the text
+    true_hash = str(SCREEN.getstr())[2:-1]
+    # print the true hash
+    SCREEN.addstr("true hash: " + str(true_hash)[2:-1] + "\n")
+    SCREEN.addstr("\n")
+
+    SCREEN.addstr("Please enter the text you want to verify:\n")
+    # read the text to verify
+    s = SCREEN.getstr()
+    # print the text to verify
+    SCREEN.addstr("text: " + str(s)[2:-1] + "\n")
+    SCREEN.addstr("\n")
+
+    # hash the text
+    SCREEN.addstr("Hashing your text...\n")
+    h = SHA1().hash(s)
+    # print the hash
+    SCREEN.addstr("\n")
+    SCREEN.addstr("Here's the text's hash: \n")
+    SCREEN.addstr(h)
+    SCREEN.addstr("\n\n")
+
+    # print the result
+    if h == true_hash:
+        SCREEN.addstr("SUCCESS: The text hasn't been modified.\n")
+    else:
+        SCREEN.addstr("WARNING: The text has been modified.\n")
+
     # wait before redirect to main menu
     wait_to_continu(main_menu=True)
 
@@ -71,7 +114,8 @@ def cramer_shoup_cipher():
     pass
 
 MENU_ITEMS = [
-    ("Hash a message with SHA-1", sha1_hash_message),
+    ("Hash a text with SHA-1", sha1_hash_text),
+    ("Check a text's SHA-1 hash", check_sha1_hash_text),
     ("Hash a file with SHA-1", sha1_hash_file),
     ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher),
     ("Quit", lambda: None)
