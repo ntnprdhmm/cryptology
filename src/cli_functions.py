@@ -130,6 +130,53 @@ def sha1_hash_file():
     # wait before redirect to main menu
     wait_to_continu(main_menu=True)
 
+def check_sha1_hash_file():
+    """ Ask the user to enter the name of a file and the hashed file.
+        Check if it's the right file by hashing the file and comparing the 2 hashs.
+    """
+    # clear the main menu
+    SCREEN.clear()
+
+    # header
+    SCREEN.addstr("CHECK A FILE'S SHA-1 HASH\n")
+    SCREEN.addstr("\n")
+
+    SCREEN.addstr("Please enter the true hash of the file:\n")
+    # read the true hash of the file
+    true_hash = str(SCREEN.getstr())[2:-1]
+    # print the true hash
+    SCREEN.addstr("true hash: " + str(true_hash)[2:-1] + "\n")
+    SCREEN.addstr("\n")
+
+    SCREEN.addstr("Please put your file in the 'assets' directory\n")
+    SCREEN.addstr("and enter the complete file name (with the extension):\n")
+    # read the file name
+    filename = str(SCREEN.getstr())[2:-1]
+    # print the filename
+    SCREEN.addstr("filename: " + filename + "\n")
+    SCREEN.addstr("\n")
+
+    # read the content of the file to hash
+    content = read_file(filename, read_bytes=True)
+    # hash the file
+    SCREEN.addstr("Hashing your file...\n")
+    file_hash = SHA1().hash(content)
+    # print the hash
+    SCREEN.addstr("\n")
+    SCREEN.addstr("Here's your hash: \n")
+    SCREEN.addstr(file_hash)
+
+    SCREEN.addstr("\n\n")
+
+    # print the result
+    if file_hash == true_hash:
+        SCREEN.addstr("SUCCESS: The file hasn't been modified.\n")
+    else:
+        SCREEN.addstr("WARNING: The file has been modified.\n")
+
+    # wait before redirect to main menu
+    wait_to_continu(main_menu=True)
+
 def cramer_shoup_cipher():
     pass
 
@@ -137,6 +184,7 @@ MENU_ITEMS = [
     ("Hash a text with SHA-1", sha1_hash_text),
     ("Check a text's SHA-1 hash", check_sha1_hash_text),
     ("Hash a file with SHA-1", sha1_hash_file),
+    ("Check a file's SHA-1 hash", check_sha1_hash_file),
     ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher),
     ("Quit", lambda: None)
 ]
