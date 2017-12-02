@@ -10,6 +10,26 @@ from src.utils import read_file
 
 SCREEN = curses.initscr()
 
+def wait_to_continu(leave=False, main_menu=False):
+    """ Print a message and wait for the user to press any key to continu
+
+        Args:
+            leave -- boolean -- if True, inform the user that the program will leave
+    """
+    destination = "continu"
+
+    if leave:
+        destination = "leave"
+    elif main_menu:
+        destination = "go to the main menu"
+
+    SCREEN.addstr("\n\n")
+    SCREEN.addstr("Press any key to " + destination + ".\n")
+    SCREEN.getch()
+
+    if main_menu:
+        show_main_menu()
+
 def sha1_hash_text():
     """ Ask the user to enter the text he wants to hash,
         hash it, and print the result
@@ -23,17 +43,17 @@ def sha1_hash_text():
 
     SCREEN.addstr("Please enter the text you want to hash:\n")
     # read the text to hash
-    s = SCREEN.getstr()
+    text = SCREEN.getstr()
     # print the text to hash
-    SCREEN.addstr("text: " + str(s)[2:-1] + "\n")
+    SCREEN.addstr("text: " + str(text)[2:-1] + "\n")
     SCREEN.addstr("\n")
     # hash the text
     SCREEN.addstr("Hashing your text...\n")
-    h = SHA1().hash(s)
+    text_hash = SHA1().hash(text)
     # print the hash
     SCREEN.addstr("\n")
     SCREEN.addstr("Here's your hash: \n")
-    SCREEN.addstr(h)
+    SCREEN.addstr(text_hash)
     # wait before redirect to main menu
     wait_to_continu(main_menu=True)
 
@@ -57,22 +77,22 @@ def check_sha1_hash_text():
 
     SCREEN.addstr("Please enter the text you want to verify:\n")
     # read the text to verify
-    s = SCREEN.getstr()
+    text = SCREEN.getstr()
     # print the text to verify
-    SCREEN.addstr("text: " + str(s)[2:-1] + "\n")
+    SCREEN.addstr("text: " + str(text)[2:-1] + "\n")
     SCREEN.addstr("\n")
 
     # hash the text
     SCREEN.addstr("Hashing your text...\n")
-    h = SHA1().hash(s)
+    text_hash = SHA1().hash(text)
     # print the hash
     SCREEN.addstr("\n")
     SCREEN.addstr("Here's the text's hash: \n")
-    SCREEN.addstr(h)
+    SCREEN.addstr(text_hash)
     SCREEN.addstr("\n\n")
 
     # print the result
-    if h == true_hash:
+    if text_hash == true_hash:
         SCREEN.addstr("SUCCESS: The text hasn't been modified.\n")
     else:
         SCREEN.addstr("WARNING: The text has been modified.\n")
@@ -102,11 +122,11 @@ def sha1_hash_file():
     content = read_file(filename, read_bytes=True)
     # hash the file
     SCREEN.addstr("Hashing your file...\n")
-    h = SHA1().hash(content)
+    file_hash = SHA1().hash(content)
     # print the hash
     SCREEN.addstr("\n")
     SCREEN.addstr("Here's your hash: \n")
-    SCREEN.addstr(h)
+    SCREEN.addstr(file_hash)
     # wait before redirect to main menu
     wait_to_continu(main_menu=True)
 
@@ -120,23 +140,6 @@ MENU_ITEMS = [
     ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher),
     ("Quit", lambda: None)
 ]
-
-def wait_to_continu(leave=False, main_menu=False):
-    """ Print a message and wait for the user to press any key to continu
-
-        Args:
-            leave -- boolean -- if True, inform the user that the program will leave
-    """
-    destination = "continu"
-
-    if leave:
-        destination = "leave"
-    elif main_menu:
-        destination = "go to the main menu"
-
-    SCREEN.addstr("\n\n")
-    SCREEN.addstr("Press any key to " + destination + ".\n")
-    SCREEN.getch()
 
 def show_main_menu():
     """ Display the main function, where the user can choose the function he want
