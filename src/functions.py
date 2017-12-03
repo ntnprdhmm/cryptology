@@ -6,8 +6,9 @@
 
 import sys
 import string
+import random
 from math import sqrt, floor
-from random import randint
+from random import randint, getrandbits
 
 def rotl(n, rotations=1, w=32):
     """ binary rotation (left)
@@ -504,3 +505,31 @@ def affine_block_decryption(ciphertext, a, b):
         message += Mi + Mj
 
     return message
+
+def generate_prime_number(length=16):
+    """
+        Generate a prime number
+
+        Args:
+            length -- int -- the size of the prime number to generate, in bits
+
+        return a number which is very probably a prime number
+    """
+    p = 4
+    # continue while the primality test fail
+    while not miller_rabin_primality_test(p, 20):
+        # generate random bits
+        p = list(str(bin(getrandbits(length)))[2:])
+        # check the size
+        if len(p) < length:
+            p = ['0']*(length-len(p)) + p
+        if len(p) > length:
+            p = p[:length]
+        # Set the MSB to 1
+        p[0] = '1'
+        # Set the LSB to 1 (else, has 0 chance to be prime)
+        p[len(p) - 1] = '1'
+        # transform the list of string to int
+        p = int(''.join(p), 2)
+
+    return p
