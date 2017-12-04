@@ -547,3 +547,20 @@ def generate_safe_prime_number(length=1025):
         # calculate p = 2*q + 1
         p = (q << 1) | 1
     return p
+
+
+def find_safe_prime_generator(p, q):
+    """
+        Find a generator a cyclic group G where the order is a safe prime:
+        => the prime factors are 2 and q
+
+        Args:
+            p -- int -- the order of the cyclic group
+            q -- int -- a prime number, where p = 2q - 1
+
+        return a generator of p
+    """
+    a = randint(0, p-1)
+    while pow(a, (p-1)//2, p) == 1 or pow(a, (p-1)//q, p) == 1:
+        a = randint(0, p-1)
+    return a
