@@ -6,6 +6,7 @@
 
 import curses
 from src.SHA1 import SHA1
+from src.CramerShoup import CramerShoup
 from src.utils import read_file
 
 SCREEN = curses.initscr()
@@ -177,15 +178,81 @@ def check_sha1_hash_file():
     # wait before redirect to main menu
     wait_to_continu(main_menu=True)
 
-def cramer_shoup_cipher():
-    pass
+def cramer_shoup_generate_keys():
+    """ Generate new public and private keys for Cramer Shoup
+    """
+    # clear the main menu
+    SCREEN.clear()
+
+    # header
+    SCREEN.addstr("GENERATE KEYS FOR CRAMER-SHOUP\n")
+    SCREEN.addstr("\n")
+
+    SCREEN.addstr("generating keys...\n")
+    SCREEN.addstr("\n")
+
+    wait_to_continu()
+
+    CramerShoup.key_generation()
+
+    SCREEN.addstr("keys have been generated !\n")
+    SCREEN.addstr("\n")
+
+    # wait before redirect to main menu
+    wait_to_continu(main_menu=True)
+
+def cramer_shoup_cipher_file():
+    """ Ask the user to put the text he want to cipher in a specific file,
+        read the content of the file, cipher it, and put the content in a file
+    """
+    # clear the main menu
+    SCREEN.clear()
+    # header
+    SCREEN.addstr("CIPHER A FILE WITH CRAMER-SHOUP\n")
+    SCREEN.addstr("\n")
+    SCREEN.addstr("Please put your text in 'assets/cramer_shoup.txt' \n")
+    # wait
+    wait_to_continu()
+    # cipher
+    SCREEN.addstr("Ciphering your text...\n")
+    CramerShoup.cipher()
+    # done !
+    SCREEN.addstr("\n")
+    SCREEN.addstr("DONE ! \n")
+    SCREEN.addstr("you can find the result in 'outputs/cramer_shoup.cipher'\n")
+    # wait before redirect to main menu
+    wait_to_continu(main_menu=True)
+
+def cramer_shoup_decipher_file():
+    """ Ask the user to put the text he want to decipher in a specific file,
+        read the content of the file, decipher it, and put the content in a file
+    """
+    # clear the main menu
+    SCREEN.clear()
+    # header
+    SCREEN.addstr("DECIPHER A FILE WITH CRAMER-SHOUP\n")
+    SCREEN.addstr("\n")
+    SCREEN.addstr("Please put your ciphertext in 'outputs/cramer_shoup.cipher' \n")
+    # wait
+    wait_to_continu()
+    # cipher
+    SCREEN.addstr("Deciphering your text...\n")
+    CramerShoup.decipher()
+    # done !
+    SCREEN.addstr("\n")
+    SCREEN.addstr("DONE ! \n")
+    SCREEN.addstr("you can find the result in 'outputs/cramer_shoup.decipher'\n")
+    # wait before redirect to main menu
+    wait_to_continu(main_menu=True)
 
 MENU_ITEMS = [
     ("Hash a text with SHA-1", sha1_hash_text),
     ("Check a text's SHA-1 hash", check_sha1_hash_text),
     ("Hash a file with SHA-1", sha1_hash_file),
     ("Check a file's SHA-1 hash", check_sha1_hash_file),
-    ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher),
+    ("Generate keys for Cramer-Shoup", cramer_shoup_generate_keys),
+    ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher_file),
+    ("Decipher a file with Cramer-Shoup", cramer_shoup_decipher_file),
     ("Quit", lambda: None)
 ]
 

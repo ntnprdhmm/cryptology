@@ -6,12 +6,10 @@
 
 from random import randint
 import sys
-from src.functions import (random_prime, find_group_generators)
+from src.functions import (generate_safe_prime_number, find_safe_prime_generator)
 from src.utils import (write_file, list_to_string, read_file)
 from src.SHA1 import SHA1
 
-MIN_PRIME = 100
-MAX_PRIME = 500
 FILE_NAME = 'cramer_shoup'
 
 class CramerShoup(object):
@@ -35,24 +33,22 @@ class CramerShoup(object):
                 private key: (x1, x2, y1, y2, w)
         """
         # start by generate randomly a prime number p
-        p = random_prime(MIN_PRIME, MAX_PRIME)
-        # get the generators of p
-        generators = find_group_generators(p)
+        p = generate_safe_prime_number()
         # pick 2 distinct generators randomly
-        g1 = generators[randint(0, len(generators)-1)]
+        g1 = find_safe_prime_generator(p, (p-1)//2)
         g2 = g1
         while g2 == g1:
-            g2 = generators[randint(0, len(generators)-1)]
+            g2 = find_safe_prime_generator(p, (p-1)//2)
         # pick randomly 5 integers in range [0:P]
         x1 = randint(0, p-1)
         x2 = randint(0, p-1)
         y1 = randint(0, p-1)
         y2 = randint(0, p-1)
         w = randint(0, p-1)
-        # calculate X, Y and W
-        X = ((g1**x1) * (g2**x2)) % p
-        Y = ((g1**y1) * (g2**y2)) % p
-        W = (g1**w) % p
+        # calculate X, Y and
+        X = (pow(g1, x1, p) * pow(g2, x2, p))
+        Y = (pow(g1, y1, p) * pow(g2, y2, p))
+        W = pow(g1, w, p)
 
         # save the public key
         write_file(FILE_NAME + '.pub', list_to_string([p, g1, g2, X, Y, W]))
@@ -87,13 +83,13 @@ class CramerShoup(object):
         # Pick a random int, b, of Zp
         b = randint(0, p-1)
         # calculate b1 and b2
-        b1 = (g1**b) % p
-        b2 = (g2**b) % p
+        b1 = pow(g1, b, p)
+        b2 = pow(g2, b, p)
         # cipher the message
-        c = ((W**b) * m) % p
+        c = (pow(W, b, p) * m) % p
         # calculate the verification
         beta = int(CramerShoup._hash(b1, b2, c), 16) % p
-        v = ((X**b) * (Y**(b*beta))) % p
+        v = (pow(X, b, p) * pow(Y, b*beta, p)) % p
 
         # write the ciphertext in a file
         write_file(FILE_NAME + '.cipher', ','.join([str(v) for v in [b1, b2, c, v]]))
@@ -112,10 +108,10 @@ class CramerShoup(object):
         b1, b2, c, v = [int(v) for v in read_file(FILE_NAME + '.cipher', 'outputs').split(',')]
         # verification step
         beta = int(CramerShoup._hash(b1, b2, c), 16) % p
-        v2 = ((b1**x1) * (b2**x2) * ((b1**y1 * b2**y2)**beta)) % p
+        v2 = (pow(b1, x1, p) * pow(b2, x2, p) * (pow(pow(b1, y1, p) * pow(b2, y2, p), beta, p))) % p
         if v != v2:
             # if the verification is false, throw error
             sys.exit("err: verification failed")
 
         # write the decipher text in a file
-        write_file(FILE_NAME + '.decipher',  str(((b1**(p - 1 - w)) * c) % p))
+        write_file(FILE_NAME + '.decipher',  str((pow(b1, (p-1-w), p) * c) % p))
