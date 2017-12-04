@@ -7,6 +7,7 @@
 import sys
 import string
 import random
+import itertools
 from math import sqrt, floor
 from random import randint, getrandbits
 
@@ -200,7 +201,7 @@ def random_prime(start = 0, end = 500):
 
     return primes[randint(0, len(primes)-1)]
 
-def prime_decomposition(n, primes = []):
+def prime_decomposition(n):
     """ Find the prime numbers pn (recursively) so that
 		n = p1^a1 * p2^a2 * ... * pn^an
 
@@ -208,15 +209,12 @@ def prime_decomposition(n, primes = []):
             n -- int -- the number of decompose
             primes -- list -- the primes factors
 	"""
-    if n <= 1:
-        return primes
-
-    i = 2
-    while n % i != 0:
-        i += 1
-    primes.append(i)
-
-    return prime_decomposition(n // i, primes)
+    for i in itertools.chain([2], itertools.count(3, 2)):
+        if n <= 1:
+            break
+        while n % i == 0:
+            n //= i
+            yield i
 
 def exponentiation_by_squaring_recursive(n, exp):
     """ Fast way to do exponentiation, recursively
@@ -312,7 +310,7 @@ def phi(n):
         return n-1
 
 	# get the integers that are part of the prime decomposition of n
-    primes = list(set(prime_decomposition(n, [])))
+    primes = list(set(prime_decomposition(n)))
 
     result = n
     for prime in primes:
@@ -491,7 +489,31 @@ def affine_block_decryption(ciphertext, a, b):
 
     return message
 
-def generate_prime_number(length=16):
+def generate_prime_candidate(length=1025):
+    """
+        Generate an integer that has a chance to be prime
+
+        Args:
+            length -- int -- the size in bits of the number to generate
+
+        return an integer
+    """
+    # generate random bits
+    p = list(str(bin(getrandbits(length)))[2:])
+    # check the size
+    if len(p) < length:
+        p = ['0']*(length-len(p)) + p
+    if len(p) > length:
+        p = p[:length]
+    # Set the MSB to 1
+    p[0] = '1'
+    # Set the LSB to 1 (else, has 0 chance to be prime)
+    p[len(p) - 1] = '1'
+    # transform the list of string to int
+    return int(''.join(p), 2)
+
+
+def generate_prime_number(length=1025):
     """
         Generate a prime number
 
@@ -502,19 +524,26 @@ def generate_prime_number(length=16):
     """
     p = 4
     # continue while the primality test fail
-    while not miller_rabin_primality_test(p, 20):
-        # generate random bits
-        p = list(str(bin(getrandbits(length)))[2:])
-        # check the size
-        if len(p) < length:
-            p = ['0']*(length-len(p)) + p
-        if len(p) > length:
-            p = p[:length]
-        # Set the MSB to 1
-        p[0] = '1'
-        # Set the LSB to 1 (else, has 0 chance to be prime)
-        p[len(p) - 1] = '1'
-        # transform the list of string to int
-        p = int(''.join(p), 2)
+    while not miller_rabin_primality_test(p, 128):
+        p = generate_prime_candidate(length)
 
+    return p
+
+
+def generate_safe_prime_number(length=1025):
+    """
+        Generate a prime safe number (where p = 2q + 1, with q prime)
+
+        Args:
+            length -- int -- the size of the prime number to generate, in bits
+
+        return a number which is very probably a prime safe prime number
+    """
+    p = 4
+    # continue while the primality test fail
+    while not miller_rabin_primality_test(p, 128):
+        # generate q
+        q = generate_prime_candidate(length-1)
+        # calculate p = 2*q + 1
+        p = (q << 1) | 1
     return p
