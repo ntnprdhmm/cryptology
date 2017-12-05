@@ -6,8 +6,9 @@
 
 from random import randint
 import sys
+import struct
 from src.functions import (generate_safe_prime_number, find_safe_prime_generator)
-from src.utils import (write_file, list_to_string, read_file)
+from src.utils import (write_file, list_to_string, read_file, read_file_bytes_block)
 from src.SHA1 import SHA1
 
 FILE_NAME = 'cramer_shoup'
@@ -72,21 +73,22 @@ class CramerShoup(object):
     @staticmethod
     def cipher():
         """
-            Cipher the message with the public key
+            Cipher the text with the public key
 
-            write the cipher message in a file
+            write the cipher text in a file
         """
         # read the public key
         p, g1, g2, X, Y, W = [int(v) for v in read_file(FILE_NAME + '.pub', 'outputs').split(',')]
-        # read the message
-        m = int(read_file(FILE_NAME + '.txt'))
+        # read the text
+        m = read_file_bytes_block(FILE_NAME + '.txt')
         # Pick a random int, b, of Zp
         b = randint(0, p-1)
         # calculate b1 and b2
         b1 = pow(g1, b, p)
         b2 = pow(g2, b, p)
-        # cipher the message
-        c = (pow(W, b, p) * m) % p
+        # cipher the text, block per block
+        block_value = int.from_bytes(m[:128], byteorder="big")
+        c = (pow(W, b, p) * block_value) % p
         # calculate the verification
         beta = int(CramerShoup._hash(b1, b2, c), 16) % p
         v = (pow(X, b, p) * pow(Y, b*beta, p)) % p
@@ -113,5 +115,16 @@ class CramerShoup(object):
             # if the verification is false, throw error
             sys.exit("err: verification failed")
 
+        # decipher c
+        m = (pow(b1, (p-1-w), p) * c) % p
+        # calculate the bytes of the original text
+        b = bytearray()
+        while m:
+            b.append(m & 0xff)
+            m >>= 8
+        b = b[::-1]
+        # remove padding
+        padding_size = int.from_bytes(b[-2:], byteorder="big")
+        b = b[:len(b) - padding_size]
         # write the decipher text in a file
-        write_file(FILE_NAME + '.decipher',  str((pow(b1, (p-1-w), p) * c) % p))
+        write_file(FILE_NAME + '.decipher', b.decode('utf-8'))
