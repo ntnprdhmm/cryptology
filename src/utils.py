@@ -9,7 +9,6 @@ import os
 import math
 import random
 
-
 def read_file(filename, directory="assets", read_bytes=False):
     """ Read the content of the given asset
 
@@ -49,7 +48,7 @@ def read_file_bytes_block(filename, directory="assets", block_size=1024):
         content.append(random.randint(0, 255))
     # add padding (padding size bytes)
     binary_padding_size = str(bin(padding_size)[2:]).zfill(padding_size_bytes * 8)
-    #print("binary_padding_size: " + str(binary_padding_size))
+
     for i in range(padding_size_bytes):
         content.append(int(binary_padding_size[i*8:(i+1)*8], 2))
 

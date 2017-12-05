@@ -6,7 +6,6 @@
 
 from random import randint
 import sys
-import struct
 from src.functions import (generate_safe_prime_number, find_safe_prime_generator)
 from src.utils import (write_file, list_to_string, read_file, read_file_bytes_block)
 from src.SHA1 import SHA1

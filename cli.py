@@ -4,13 +4,9 @@
 import curses
 from src.cli_functions import show_main_menu
 
-from src.CramerShoup import CramerShoup
-
 if __name__ == '__main__':
     try:
-        #show_main_menu()
-        CramerShoup.cipher()
-        CramerShoup.decipher()
+        show_main_menu()
     finally:
         # Todo if an error happened or end correctly
         # else, the terminal is broken
