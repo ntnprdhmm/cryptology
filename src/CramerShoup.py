@@ -6,8 +6,10 @@
 
 from random import randint
 import sys
+import itertools
 from src.functions import (generate_safe_prime_number, find_safe_prime_generator)
-from src.utils import (write_file, list_to_string, read_file, read_file_bytes_block)
+from src.utils import (write_file, list_to_string, read_file, read_file_bytes_block,
+                       int_to_bytes, bytes_to_int)
 from src.SHA1 import SHA1
 
 FILE_NAME = 'cramer_shoup'
@@ -86,14 +88,21 @@ class CramerShoup(object):
         b1 = pow(g1, b, p)
         b2 = pow(g2, b, p)
         # cipher the text, block per block
-        block_value = int.from_bytes(m[:128], byteorder="big")
-        c = (pow(W, b, p) * block_value) % p
+        c = []
+        for i in range(0, len(m), 128):
+            block_value = int.from_bytes(m[i:i+128], byteorder="big")
+            c.append((pow(W, b, p) * block_value) % p)
         # calculate the verification
-        beta = int(CramerShoup._hash(b1, b2, c), 16) % p
+        x = c[0]
+        for i in range(1, len(c)):
+            x ^= c[i]
+        beta = int(CramerShoup._hash(b1, b2, x), 16) % p
         v = (pow(X, b, p) * pow(Y, b*beta, p)) % p
 
+        hex_c = ''.join([hex(block)[2:] for block in c])
+
         # write the ciphertext in a file
-        write_file(FILE_NAME + '.cipher', ','.join([str(v) for v in [b1, b2, c, v]]))
+        write_file(FILE_NAME + '.cipher', ','.join([str(v) for v in [hex(b1), hex(b2), hex_c, hex(v)]]))
 
     @staticmethod
     def decipher():
@@ -106,24 +115,34 @@ class CramerShoup(object):
         p, _, _, _, _, _ = [int(v) for v in read_file(FILE_NAME + '.pub', 'outputs').split(',')]
         x1, x2, y1, y2, w = [int(v) for v in read_file(FILE_NAME, 'outputs').split(',')]
         # read the cipher text
-        b1, b2, c, v = [int(v) for v in read_file(FILE_NAME + '.cipher', 'outputs').split(',')]
+        b1, b2, c, v = read_file(FILE_NAME + '.cipher', 'outputs').split(',')
+        b1, b2, v = int(b1, 16), int(b2, 16), int(v, 16)
+        m = [int(c[i:i+256], 16) for i in range(0, len(c), 256)]
         # verification step
-        beta = int(CramerShoup._hash(b1, b2, c), 16) % p
+        x = m[0]
+        for i in range(1, len(m)):
+            x ^= m[i]
+        beta = int(CramerShoup._hash(b1, b2, x), 16) % p
         v2 = (pow(b1, x1, p) * pow(b2, x2, p) * (pow(pow(b1, y1, p) * pow(b2, y2, p), beta, p))) % p
         if v != v2:
             # if the verification is false, throw error
             sys.exit("err: verification failed")
 
-        # decipher c
-        m = (pow(b1, (p-1-w), p) * c) % p
-        # calculate the bytes of the original text
-        b = bytearray()
-        while m:
-            b.append(m & 0xff)
-            m >>= 8
-        b = b[::-1]
+        text = bytearray()
+        # decipher block per block
+        for block in m:
+            block = (pow(b1, (p-1-w), p) * int(block)) % p
+            # calculate the bytes of the original block
+            b = bytearray()
+            while block:
+                b.append(block & 0xff)
+                block >>= 8
+            text += b[::-1]
+
         # remove padding
-        padding_size = int.from_bytes(b[-2:], byteorder="big")
-        b = b[:len(b) - padding_size]
+        padding_size = int.from_bytes(text[-2:], byteorder="big")
+        text = text[:len(text) - padding_size]
+
+
         # write the decipher text in a file
-        write_file(FILE_NAME + '.decipher', b.decode('utf-8'))
+        write_file(FILE_NAME + '.decipher', text.decode('utf-8'))

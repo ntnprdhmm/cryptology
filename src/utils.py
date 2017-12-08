@@ -9,6 +9,24 @@ import os
 import math
 import random
 
+def bytes_to_int(bytes):
+    result = 0
+
+    for b in bytes:
+        result = result * 256 + int(b)
+
+    return result
+
+def int_to_bytes(value, length):
+    result = []
+
+    for i in range(0, length):
+        result.append(value >> (i * 8) & 0xff)
+
+    result.reverse()
+
+    return result
+
 def read_file(filename, directory="assets", read_bytes=False):
     """ Read the content of the given asset
 
