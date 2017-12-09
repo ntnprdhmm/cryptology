@@ -1,96 +1,45 @@
 #!usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-""" This module contains all function uses in cli.py
+""" This module contains all the functions to build the menu and the menu's
+    options handlers (ciphering functions, ..)
 """
 
 import curses
 from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
 from src.utils import (read_file, write_file)
-
-SCREEN = curses.initscr()
-
-def wait_to_continu(leave=False, main_menu=False):
-    """ Print a message and wait for the user to press any key to continu
-
-        Args:
-            leave -- boolean -- if True, inform the user that the program will leave
-    """
-    destination = "continu"
-
-    if leave:
-        destination = "leave"
-    elif main_menu:
-        destination = "go to the main menu"
-
-    SCREEN.addstr("\n\n")
-    SCREEN.addstr("Press any key to " + destination + ".\n")
-    SCREEN.getch()
-
-    if main_menu:
-        show_main_menu()
+from src.cli_utils import (SCREEN, wait_to_continu, print_option_header, ask_question,
+                           print_data)
 
 def sha1_hash_text():
     """ Ask the user to enter the text he wants to hash,
         hash it, and print the result
     """
-    # clear the main menu
-    SCREEN.clear()
+    print_option_header("hash a text with sha-1")
 
-    # header
-    SCREEN.addstr("HASH A TEXT WITH SHA-1\n")
-    SCREEN.addstr("\n")
-
-    SCREEN.addstr("Please enter the text you want to hash:\n")
-    # read the text to hash
-    text = SCREEN.getstr()
-    # print the text to hash
-    SCREEN.addstr("text: " + str(text)[2:-1] + "\n")
-    SCREEN.addstr("\n")
+    text = ask_question("Please enter the text you want to hash")
     # hash the text
     SCREEN.addstr("Hashing your text...\n")
     text_hash = SHA1().hash(text)
-    # print the hash
-    SCREEN.addstr("\n")
-    SCREEN.addstr("Here's your hash: \n")
-    SCREEN.addstr(text_hash)
+    print_data(text_hash, "Here's your hash:", done=True)
     # wait before redirect to main menu
-    wait_to_continu(main_menu=True)
+    wait_to_continu(next_step=show_main_menu)
 
 def check_sha1_hash_text():
     """ Ask the user to enter a hash and the hashed text.
         Check if it's the right text by hashing the text and comparing the 2 hashs.
     """
-    # clear the main menu
-    SCREEN.clear()
+    print_option_header("check a text's sha-1 hash")
 
-    # header
-    SCREEN.addstr("CHECK A TEXT'S SHA-1 HASH\n")
-    SCREEN.addstr("\n")
+    true_hash = ask_question("Please enter the true hash of the text", to_string=True)
 
-    SCREEN.addstr("Please enter the true hash of the text:\n")
-    # read the true hash of the text
-    true_hash = str(SCREEN.getstr())[2:-1]
-    # print the true hash
-    SCREEN.addstr("true hash: " + str(true_hash)[2:-1] + "\n")
-    SCREEN.addstr("\n")
-
-    SCREEN.addstr("Please enter the text you want to verify:\n")
-    # read the text to verify
-    text = SCREEN.getstr()
-    # print the text to verify
-    SCREEN.addstr("text: " + str(text)[2:-1] + "\n")
-    SCREEN.addstr("\n")
+    text = ask_question("Please enter the text you want to verify")
 
     # hash the text
     SCREEN.addstr("Hashing your text...\n")
     text_hash = SHA1().hash(text)
     # print the hash
-    SCREEN.addstr("\n")
-    SCREEN.addstr("Here's the text's hash: \n")
-    SCREEN.addstr(text_hash)
-    SCREEN.addstr("\n\n")
+    print_data(text_hash, "Here's the text's hash:")
 
     # print the result
     if text_hash == true_hash:
@@ -99,63 +48,36 @@ def check_sha1_hash_text():
         SCREEN.addstr("WARNING: The text has been modified.\n")
 
     # wait before redirect to main menu
-    wait_to_continu(main_menu=True)
+    wait_to_continu(next_step=show_main_menu)
 
 def sha1_hash_file():
     """ Ask the user to enter the name of the file he wants to hash,
         read the content of the file, hash it, and print the result
     """
-    # clear the main menu
-    SCREEN.clear()
+    print_option_header("hash a file with sha-1")
 
-    # header
-    SCREEN.addstr("HASH A FILE WITH SHA-1\n")
-    SCREEN.addstr("\n")
-
-    SCREEN.addstr("Please put your file in the 'assets' directory\n")
-    SCREEN.addstr("and enter the complete file name (with the extension):\n")
-    # read the file name
-    filename = str(SCREEN.getstr())[2:-1]
-    # print the filename
-    SCREEN.addstr("filename: " + filename + "\n")
-    SCREEN.addstr("\n")
+    filename = ask_question("Put your file in the 'assets' directory\nand enter the \
+                            complete file name (with the extension):", to_string=True)
     # read the content of the file to hash
     content = read_file(filename, read_bytes=True)
     # hash the file
     SCREEN.addstr("Hashing your file...\n")
     file_hash = SHA1().hash(content)
     # print the hash
-    SCREEN.addstr("\n")
-    SCREEN.addstr("Here's your hash: \n")
-    SCREEN.addstr(file_hash)
+    print_data(file_hash, "Here's your hash:")
     # wait before redirect to main menu
-    wait_to_continu(main_menu=True)
+    wait_to_continu(next_step=show_main_menu)
 
 def check_sha1_hash_file():
     """ Ask the user to enter the name of a file and the hashed file.
         Check if it's the right file by hashing the file and comparing the 2 hashs.
     """
-    # clear the main menu
-    SCREEN.clear()
+    print_option_header("check a file's sha-1 hash")
 
-    # header
-    SCREEN.addstr("CHECK A FILE'S SHA-1 HASH\n")
-    SCREEN.addstr("\n")
+    true_hash = ask_question("Enter the true hash of the file", to_string=True)
 
-    SCREEN.addstr("Please enter the true hash of the file:\n")
-    # read the true hash of the file
-    true_hash = str(SCREEN.getstr())[2:-1]
-    # print the true hash
-    SCREEN.addstr("true hash: " + str(true_hash)[2:-1] + "\n")
-    SCREEN.addstr("\n")
-
-    SCREEN.addstr("Please put your file in the 'assets' directory\n")
-    SCREEN.addstr("and enter the complete file name (with the extension):\n")
-    # read the file name
-    filename = str(SCREEN.getstr())[2:-1]
-    # print the filename
-    SCREEN.addstr("filename: " + filename + "\n")
-    SCREEN.addstr("\n")
+    message = "Put your file in the 'assets' directory\nand enter the complete file name (with the extension):"
+    filename = ask_question(message, to_string=True)
 
     # read the content of the file to hash
     content = read_file(filename, read_bytes=True)
@@ -163,11 +85,7 @@ def check_sha1_hash_file():
     SCREEN.addstr("Hashing your file...\n")
     file_hash = SHA1().hash(content)
     # print the hash
-    SCREEN.addstr("\n")
-    SCREEN.addstr("Here's your hash: \n")
-    SCREEN.addstr(file_hash)
-
-    SCREEN.addstr("\n\n")
+    print_data(file_hash, "Here's your hash:")
 
     # print the result
     if file_hash == true_hash:
@@ -176,22 +94,17 @@ def check_sha1_hash_file():
         SCREEN.addstr("WARNING: The file has been modified.\n")
 
     # wait before redirect to main menu
-    wait_to_continu(main_menu=True)
+    wait_to_continu(next_step=show_main_menu)
 
 def cramer_shoup_generate_keys():
     """ Generate new public and private keys for Cramer Shoup
     """
-    # clear the main menu
-    SCREEN.clear()
+    print_option_header("generate keys for cramer-shoup")
 
-    # header
-    SCREEN.addstr("GENERATE KEYS FOR CRAMER-SHOUP\n")
-    SCREEN.addstr("\n")
+    wait_to_continu()
 
     SCREEN.addstr("generating keys...\n")
     SCREEN.addstr("\n")
-
-    wait_to_continu()
 
     CramerShoup.key_generation()
 
@@ -199,17 +112,13 @@ def cramer_shoup_generate_keys():
     SCREEN.addstr("\n")
 
     # wait before redirect to main menu
-    wait_to_continu(main_menu=True)
+    wait_to_continu(next_step=show_main_menu)
 
 def cramer_shoup_cipher_file():
     """ Ask the user to put the text he want to cipher in a specific file,
         read the content of the file, cipher it, and put the content in a file
     """
-    # clear the main menu
-    SCREEN.clear()
-    # header
-    SCREEN.addstr("CIPHER A FILE WITH CRAMER-SHOUP\n")
-    SCREEN.addstr("\n")
+    print_option_header("cipher a file with cramer-shoup")
     SCREEN.addstr("Please put your text in 'assets/cramer_shoup.txt' \n")
     # wait
     wait_to_continu()
@@ -226,17 +135,13 @@ def cramer_shoup_cipher_file():
     SCREEN.addstr("DONE ! \n")
     SCREEN.addstr("you can find the result in 'outputs/cramer_shoup.cipher'\n")
     # wait before redirect to main menu
-    wait_to_continu(main_menu=True)
+    wait_to_continu(next_step=show_main_menu)
 
 def cramer_shoup_decipher_file():
     """ Ask the user to put the text he want to decipher in a specific file,
         read the content of the file, decipher it, and put the content in a file
     """
-    # clear the main menu
-    SCREEN.clear()
-    # header
-    SCREEN.addstr("DECIPHER A FILE WITH CRAMER-SHOUP\n")
-    SCREEN.addstr("\n")
+    print_option_header("decipher a file with cramer-shoup")
     SCREEN.addstr("Please put your ciphertext in 'outputs/cramer_shoup.cipher' \n")
     # wait
     wait_to_continu()
@@ -252,7 +157,7 @@ def cramer_shoup_decipher_file():
     SCREEN.addstr("DONE ! \n")
     SCREEN.addstr("you can find the result in 'outputs/cramer_shoup.decipher'\n")
     # wait before redirect to main menu
-    wait_to_continu(main_menu=True)
+    wait_to_continu(next_step=show_main_menu)
 
 def cramer_shoup_cipher_text():
     pass
