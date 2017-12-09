@@ -22,37 +22,35 @@ def read_file(filename, directory="assets", read_bytes=False):
     f = open(os.path.abspath(directory + "/" + filename), "rb" if read_bytes else "r")
     return f.read()
 
-def read_file_bytes_block(filename, directory="assets", block_size=1024):
+def add_padding(stream, block_size=1024):
     """
-        Read the content of the file in bytes, and add some padding if needed
+        Add some padding to the stream, if needed
 
         The padding respect the "ISO 10126" norm (random bytes, and the last
         bytes are the number of random bytes added for padding)
 
         Args:
-            filename -- string -- the name of the file to read
-            directory -- string -- the directory name, at the project's root
+            stream -- bytes -- the stream to pad
             block_size -- int -- the size of the blocks
 
-        return a bytearray (the content of the file, padded if needed)
+        return a bytearray (the stream padded if needed)
     """
-    # read the content of the file in bytes
-    content = list(read_file(filename, directory, True))
+    stream = bytearray(stream)
     # calculate the number of bytes needed to store the block size
     msb_index = len(str(bin(block_size)[2:]))
     padding_size_bytes = math.ceil(msb_index / 8)
     # calculate the padding size
-    padding_size = (block_size // 8) - (len(content) % (block_size//8))
+    padding_size = (block_size // 8) - (len(stream) % (block_size//8))
     # add padding (random bytes)
     for _ in range(0, padding_size - padding_size_bytes):
-        content.append(random.randint(0, 255))
+        stream.append(random.randint(0, 255))
     # add padding (padding size bytes)
     binary_padding_size = str(bin(padding_size)[2:]).zfill(padding_size_bytes * 8)
 
     for i in range(padding_size_bytes):
-        content.append(int(binary_padding_size[i*8:(i+1)*8], 2))
+        stream.append(int(binary_padding_size[i*8:(i+1)*8], 2))
 
-    return bytearray(content)
+    return bytearray(stream)
 
 def write_file(filename, data):
     """ Write content in a file ('outputs' directory)

@@ -7,7 +7,7 @@
 from random import randint
 import sys
 from src.functions import (generate_safe_prime_number, find_safe_prime_generator)
-from src.utils import (write_file, list_to_string, read_file, read_file_bytes_block)
+from src.utils import (write_file, list_to_string, read_file, add_padding)
 from src.SHA1 import SHA1
 
 FILE_NAME = 'cramer_shoup'
@@ -70,16 +70,19 @@ class CramerShoup(object):
         return SHA1().hash(str(b1) + str(b2) + str(c))
 
     @staticmethod
-    def cipher():
+    def cipher(steam):
         """
             Cipher the text with the public key
+
+            Args:
+                steam -- bytes -- the text to cipher
 
             write the cipher text in a file
         """
         # read the public key
         p, g1, g2, X, Y, W = [int(v) for v in read_file(FILE_NAME + '.pub', 'outputs').split(',')]
-        # read the text
-        m = read_file_bytes_block(FILE_NAME + '.txt')
+        # pad the input stream
+        m = add_padding(steam)
         # Pick a random int, b, of Zp
         b = randint(0, p-1)
         # calculate b1 and b2
@@ -105,21 +108,24 @@ class CramerShoup(object):
 
         hex_c = ''.join(c)
 
-        # write the ciphertext in a file
-        write_file(FILE_NAME + '.cipher', ','.join([str(v) for v in [hex(b1), hex(b2), hex_c, hex(v)]]))
+        # write the ciphertext
+        return hex(b1), hex(b2), hex_c, hex(v)
 
     @staticmethod
-    def decipher():
+    def decipher(stream):
         """
             Decipher the message with the private key
+
+            Args:
+                stream -- bytes -- the text to decipher
 
             return the decipher message
         """
         # read the private and public keys
         p, _, _, _, _, _ = [int(v) for v in read_file(FILE_NAME + '.pub', 'outputs').split(',')]
         x1, x2, y1, y2, w = [int(v) for v in read_file(FILE_NAME, 'outputs').split(',')]
-        # read the cipher text
-        b1, b2, c, v = read_file(FILE_NAME + '.cipher', 'outputs').split(',')
+        # read the cipher stream
+        b1, b2, c, v = stream.split(',')
         b1, b2, v = int(b1, 16), int(b2, 16), int(v, 16)
         m = [int(c[i:i+258], 16) for i in range(0, len(c), 258)]
         # verification step
@@ -147,6 +153,5 @@ class CramerShoup(object):
         padding_size = int.from_bytes(text[-2:], byteorder="big")
         text = text[:len(text) - padding_size]
 
-
-        # write the decipher text in a file
-        write_file(FILE_NAME + '.decipher', text.decode('utf-8'))
+        # return the decipher text
+        return text.decode('utf-8')

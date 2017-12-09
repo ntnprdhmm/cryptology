@@ -7,7 +7,7 @@
 import curses
 from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
-from src.utils import read_file
+from src.utils import (read_file, write_file)
 
 SCREEN = curses.initscr()
 
@@ -214,8 +214,13 @@ def cramer_shoup_cipher_file():
     # wait
     wait_to_continu()
     # cipher
-    SCREEN.addstr("Ciphering your text...\n")
-    CramerShoup.cipher()
+    SCREEN.addstr("Reading the file content...\n")
+    content = read_file("cramer_shoup.txt", read_bytes=True)
+    SCREEN.addstr("Ciphering the file...\n")
+    # ciphertext is a list (b1, b2, c, v)
+    ciphertext = CramerShoup.cipher(content)
+    # write the ciphertext in a file
+    write_file('cramer_shoup.cipher', ','.join([str(v) for v in ciphertext]))
     # done !
     SCREEN.addstr("\n")
     SCREEN.addstr("DONE ! \n")
@@ -236,8 +241,12 @@ def cramer_shoup_decipher_file():
     # wait
     wait_to_continu()
     # cipher
-    SCREEN.addstr("Deciphering your text...\n")
-    CramerShoup.decipher()
+    SCREEN.addstr("Reading the file...\n")
+    content = read_file("cramer_shoup.cipher", directory="outputs")
+    SCREEN.addstr("Deciphering the text...\n")
+    deciphertext = CramerShoup.decipher(content)
+    # write the decipher text in a file
+    write_file('cramer_shoup.decipher', deciphertext)
     # done !
     SCREEN.addstr("\n")
     SCREEN.addstr("DONE ! \n")
@@ -245,12 +254,20 @@ def cramer_shoup_decipher_file():
     # wait before redirect to main menu
     wait_to_continu(main_menu=True)
 
+def cramer_shoup_cipher_text():
+    pass
+
+def cramer_shoup_decipher_text():
+    pass
+
 MENU_ITEMS = [
     ("Hash a text with SHA-1", sha1_hash_text),
     ("Check a text's SHA-1 hash", check_sha1_hash_text),
     ("Hash a file with SHA-1", sha1_hash_file),
     ("Check a file's SHA-1 hash", check_sha1_hash_file),
     ("Generate keys for Cramer-Shoup", cramer_shoup_generate_keys),
+    ("Cipher a text with Cramer-Shoup", cramer_shoup_cipher_text),
+    ("Decipher a text with Cramer-Shoup", cramer_shoup_decipher_text),
     ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher_file),
     ("Decipher a file with Cramer-Shoup", cramer_shoup_decipher_file),
     ("Quit", lambda: None)
