@@ -97,7 +97,13 @@ class CramerShoup(object):
         beta = int(CramerShoup._hash(b1, b2, x), 16) % p
         v = (pow(X, b, p) * pow(Y, b*beta, p)) % p
 
-        hex_c = ''.join([hex(block)[2:] for block in c])
+        # from 128 to 129 bytes
+        for i, block in enumerate(c):
+            c[i] = hex(block)[2:]
+            # add leading 0 if needed, to create a block of 129 bytes (258 hex digits)
+            c[i] = '0'*(258 - len(c[i])) + c[i]
+
+        hex_c = ''.join(c)
 
         # write the ciphertext in a file
         write_file(FILE_NAME + '.cipher', ','.join([str(v) for v in [hex(b1), hex(b2), hex_c, hex(v)]]))
@@ -115,7 +121,7 @@ class CramerShoup(object):
         # read the cipher text
         b1, b2, c, v = read_file(FILE_NAME + '.cipher', 'outputs').split(',')
         b1, b2, v = int(b1, 16), int(b2, 16), int(v, 16)
-        m = [int(c[i:i+256], 16) for i in range(0, len(c), 256)]
+        m = [int(c[i:i+258], 16) for i in range(0, len(c), 258)]
         # verification step
         x = m[0]
         for i in range(1, len(m)):
