@@ -8,32 +8,28 @@ import curses
 from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
 from src.utils import (read_file, write_file)
-from src.cli_utils import (SCREEN, wait_to_continu, print_option_header, ask_question,
-                           print_data)
+from src.cli_utils import (SCREEN, wait_to_continu, print_option_header,
+                           print_data, load_data)
 
-def sha1_hash_text():
-    """ Ask the user to enter the text he wants to hash,
-        hash it, and print the result
+def sha1_hash():
+    """ 1 - Ask the user to enter the data he wants to hash and hash it.
+        2 - Ask the user if he want the result in the console or in a file.
     """
-    print_option_header("hash a text with sha-1")
-
-    text = ask_question("Please enter the text you want to hash")
-    # hash the text
-    SCREEN.addstr("Hashing your text...\n")
-    text_hash = SHA1().hash(text)
+    print_option_header("hash with sha-1")
+    data = load_data()
+    text_hash = SHA1().hash(data)
     print_data(text_hash, "Here's your hash:", done=True)
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
-def check_sha1_hash_text():
+def sha1_check():
     """ Ask the user to enter a hash and the hashed text.
         Check if it's the right text by hashing the text and comparing the 2 hashs.
     """
     print_option_header("check a text's sha-1 hash")
 
-    true_hash = ask_question("Please enter the true hash of the text", to_string=True)
-
-    text = ask_question("Please enter the text you want to verify")
+    text = load_data(data_name="your data")
+    true_hash = load_data(data_name="the real hash", to_string=True)
 
     # hash the text
     SCREEN.addstr("Hashing your text...\n")
@@ -46,52 +42,6 @@ def check_sha1_hash_text():
         SCREEN.addstr("SUCCESS: The text hasn't been modified.\n")
     else:
         SCREEN.addstr("WARNING: The text has been modified.\n")
-
-    # wait before redirect to main menu
-    wait_to_continu(next_step=show_main_menu)
-
-def sha1_hash_file():
-    """ Ask the user to enter the name of the file he wants to hash,
-        read the content of the file, hash it, and print the result
-    """
-    print_option_header("hash a file with sha-1")
-
-    filename = ask_question("Put your file in the 'assets' directory\nand enter the \
-                            complete file name (with the extension):", to_string=True)
-    # read the content of the file to hash
-    content = read_file(filename, read_bytes=True)
-    # hash the file
-    SCREEN.addstr("Hashing your file...\n")
-    file_hash = SHA1().hash(content)
-    # print the hash
-    print_data(file_hash, "Here's your hash:")
-    # wait before redirect to main menu
-    wait_to_continu(next_step=show_main_menu)
-
-def check_sha1_hash_file():
-    """ Ask the user to enter the name of a file and the hashed file.
-        Check if it's the right file by hashing the file and comparing the 2 hashs.
-    """
-    print_option_header("check a file's sha-1 hash")
-
-    true_hash = ask_question("Enter the true hash of the file", to_string=True)
-
-    message = "Put your file in the 'assets' directory\nand enter the complete file name (with the extension):"
-    filename = ask_question(message, to_string=True)
-
-    # read the content of the file to hash
-    content = read_file(filename, read_bytes=True)
-    # hash the file
-    SCREEN.addstr("Hashing your file...\n")
-    file_hash = SHA1().hash(content)
-    # print the hash
-    print_data(file_hash, "Here's your hash:")
-
-    # print the result
-    if file_hash == true_hash:
-        SCREEN.addstr("SUCCESS: The file hasn't been modified.\n")
-    else:
-        SCREEN.addstr("WARNING: The file has been modified.\n")
 
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
@@ -114,20 +64,16 @@ def cramer_shoup_generate_keys():
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
-def cramer_shoup_cipher_file():
+def cramer_shoup_cipher():
     """ Ask the user to put the text he want to cipher in a specific file,
         read the content of the file, cipher it, and put the content in a file
     """
-    print_option_header("cipher a file with cramer-shoup")
-    SCREEN.addstr("Please put your text in 'assets/cramer_shoup.txt' \n")
-    # wait
-    wait_to_continu()
-    # cipher
-    SCREEN.addstr("Reading the file content...\n")
-    content = read_file("cramer_shoup.txt", read_bytes=True)
-    SCREEN.addstr("Ciphering the file...\n")
+    print_option_header("cipher with cramer-shoup")
+
+    data = load_data(data_name="data to cipher")
+    SCREEN.addstr("Ciphering...\n")
     # ciphertext is a list (b1, b2, c, v)
-    ciphertext = CramerShoup.cipher(content)
+    ciphertext = CramerShoup.cipher(data)
     # write the ciphertext in a file
     write_file('cramer_shoup.cipher', ','.join([str(v) for v in ciphertext]))
     # done !
@@ -137,7 +83,7 @@ def cramer_shoup_cipher_file():
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
-def cramer_shoup_decipher_file():
+def cramer_shoup_decipher():
     """ Ask the user to put the text he want to decipher in a specific file,
         read the content of the file, decipher it, and put the content in a file
     """
@@ -159,22 +105,12 @@ def cramer_shoup_decipher_file():
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
-def cramer_shoup_cipher_text():
-    pass
-
-def cramer_shoup_decipher_text():
-    pass
-
 MENU_ITEMS = [
-    ("Hash a text with SHA-1", sha1_hash_text),
-    ("Check a text's SHA-1 hash", check_sha1_hash_text),
-    ("Hash a file with SHA-1", sha1_hash_file),
-    ("Check a file's SHA-1 hash", check_sha1_hash_file),
+    ("Hash with SHA-1", sha1_hash),
+    ("Check a SHA-1 hash", sha1_check),
     ("Generate keys for Cramer-Shoup", cramer_shoup_generate_keys),
-    ("Cipher a text with Cramer-Shoup", cramer_shoup_cipher_text),
-    ("Decipher a text with Cramer-Shoup", cramer_shoup_decipher_text),
-    ("Cipher a file with Cramer-Shoup", cramer_shoup_cipher_file),
-    ("Decipher a file with Cramer-Shoup", cramer_shoup_decipher_file),
+    ("Cipher with Cramer-Shoup", cramer_shoup_cipher),
+    ("Decipher with Cramer-Shoup", cramer_shoup_decipher),
     ("Quit", lambda: None)
 ]
 

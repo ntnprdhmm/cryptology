@@ -4,6 +4,7 @@
 """
 
 import curses
+from src.utils import (read_file)
 
 SCREEN = curses.initscr()
 
@@ -33,22 +34,38 @@ def print_option_header(title):
     SCREEN.addstr(title.upper())
     SCREEN.addstr("\n\n")
 
-def ask_question(question, to_string=False):
-    """ Ask a question to a user, and return his response
+def load_data(data_name=None, to_string=False):
+    """ Ask the data to the user. He has to choose between:
+            - paste his text in the console
+            - paste the name of his file in the console
 
         Args:
-            question -- string -- the question to ask
-            to_string -- boolean -- if True, format the bytes input to string
-                before returning it
+            to_string -- boolean -- if True, the data as string, else bytes
 
-        return the user's response (in bytes)
+        return the data
     """
-    SCREEN.addstr(question + "\n")
-    response = SCREEN.getstr()
+    if data_name:
+        SCREEN.addstr("TO LOAD: " + data_name + "\n")
 
-    SCREEN.addstr(str(response)[2:-1] + "\n\n")
+    SCREEN.addstr("How do you want to load it ?\n")
+    SCREEN.addstr("- press 't' to type (or paste) your it directly in the console\n")
+    SCREEN.addstr("- press 'f' if you want to choose a file\n")
+    choice = -1
+    while choice != 102 and choice != 116:
+        choice = SCREEN.getch()
+    if choice == 116:
+        SCREEN.addstr("You choose to type directly in the console.\n")
+        SCREEN.addstr("Enter your data now:\n")
+        data = SCREEN.getstr()
+        SCREEN.addstr(str(data)[2:-1] + "\n\n")
+    else:
+        SCREEN.addstr("You choose to load it by file.\n")
+        SCREEN.addstr("Your file must be in the '/assets' directory.\n")
+        SCREEN.addstr("Enter the name of your file:\n")
+        filename = str(SCREEN.getstr())[2:-1]
+        data = read_file(filename, read_bytes=True)
 
-    return str(response)[2:-1] if to_string else response
+    return str(data)[2:-1] if to_string else data
 
 def print_data(data, message=None, done=False):
     """ Print some data at the screen
