@@ -4,7 +4,7 @@
 """
 
 import curses
-from src.utils import (read_file)
+from src.utils import (read_file, write_file)
 
 SCREEN = curses.initscr()
 
@@ -66,6 +66,40 @@ def load_data(data_name=None, to_string=False):
         data = read_file(filename, read_bytes=True)
 
     return str(data)[2:-1] if to_string else data
+
+def output_result(data, default_filename="None"):
+    """ Ask the user where he wants the result to be output
+            - print it in the console
+            - save it in a file
+
+        Args:
+            data -- string -- the data to save
+            default_filename -- string -- if not None, suggest this filename
+    """
+    SCREEN.addstr("How do you want the result to be output ?\n")
+    SCREEN.addstr("- press 'c' if you  want it directly in the console\n")
+    SCREEN.addstr("- press 'f' if you want it to be store in a file\n\n")
+    choice = -1
+    while choice != 99 and choice != 102:
+        choice = SCREEN.getch()
+    if choice == 99:
+        SCREEN.addstr("You choose 'in the console'.\n")
+        SCREEN.addstr("Here is the ouput:'.\n")
+        SCREEN.addstr(data + "\n")
+    else:
+        SCREEN.addstr("You choose 'in a file'.\n")
+        SCREEN.addstr("Your file will be created in the 'outputs' directory.\n")
+        SCREEN.addstr("Please enter a name for the file \n")
+        if default_filename:
+            SCREEN.addstr("(default: " + default_filename + ")")
+        SCREEN.addstr(": \n")
+        # read the filename
+        filename = str(SCREEN.getstr())[2:-1]
+        if len(filename) == 0:
+            filename = default_filename
+        # write in the file
+        write_file(filename, data)
+        SCREEN.addstr("The output has been wrote in '/outputs/" + filename + "' \n")
 
 def print_data(data, message=None, done=False):
     """ Print some data at the screen

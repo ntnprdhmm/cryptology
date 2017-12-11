@@ -7,9 +7,9 @@
 import curses
 from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
-from src.utils import (read_file, write_file)
+from src.utils import (read_file)
 from src.cli_utils import (SCREEN, wait_to_continu, print_option_header,
-                           print_data, load_data)
+                           print_data, load_data, output_result)
 
 def sha1_hash():
     """ 1 - Ask the user to enter the data he wants to hash and hash it.
@@ -18,7 +18,7 @@ def sha1_hash():
     print_option_header("hash with sha-1")
     data = load_data()
     text_hash = SHA1().hash(data)
-    print_data(text_hash, "Here's your hash:", done=True)
+    output_result(text_hash, "sha1.hash")
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
@@ -74,12 +74,8 @@ def cramer_shoup_cipher():
     SCREEN.addstr("Ciphering...\n")
     # ciphertext is a list (b1, b2, c, v)
     ciphertext = CramerShoup.cipher(data)
-    # write the ciphertext in a file
-    write_file('cramer_shoup.cipher', ','.join([str(v) for v in ciphertext]))
-    # done !
-    SCREEN.addstr("\n")
-    SCREEN.addstr("DONE ! \n")
-    SCREEN.addstr("you can find the result in 'outputs/cramer_shoup.cipher'\n")
+
+    output_result(','.join([str(v) for v in ciphertext]), "cramer_shoup.cipher")
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
@@ -96,12 +92,8 @@ def cramer_shoup_decipher():
     content = read_file("cramer_shoup.cipher", directory="outputs")
     SCREEN.addstr("Deciphering the text...\n")
     deciphertext = CramerShoup.decipher(content)
-    # write the decipher text in a file
-    write_file('cramer_shoup.decipher', deciphertext)
-    # done !
-    SCREEN.addstr("\n")
-    SCREEN.addstr("DONE ! \n")
-    SCREEN.addstr("you can find the result in 'outputs/cramer_shoup.decipher'\n")
+
+    output_result(deciphertext, "cramer_shoup.decipher")
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
