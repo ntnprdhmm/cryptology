@@ -1,6 +1,6 @@
 import unittest
 
-from src.functions import exponentiation_by_squaring, exponentiation_by_squaring_recursive
+from src._functions import exponentiation_by_squaring, exponentiation_by_squaring_recursive
 
 class TestExponentiationBySquaring(unittest.TestCase):
 

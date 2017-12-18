@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-# -*-coding: utf-8 -*-
 
 """ This module contains the SHA1 class
 """
 
-from src.functions import rotl
+from src._functions import rotl
 
 class SHA1(object):
     """ SHA 1 hash algorithm implementation

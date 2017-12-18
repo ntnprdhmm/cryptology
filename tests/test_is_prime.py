@@ -1,6 +1,6 @@
 import unittest
 
-from src.functions import is_prime
+from src._functions import is_prime
 
 class TestIsPrime(unittest.TestCase):
 

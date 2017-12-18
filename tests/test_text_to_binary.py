@@ -1,6 +1,6 @@
 import unittest
 
-from src.utils import utf8_to_binary, binary_to_utf8
+from src._utils import utf8_to_binary, binary_to_utf8
 
 class TestTextToBinary(unittest.TestCase):
 

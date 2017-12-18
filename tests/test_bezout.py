@@ -1,6 +1,6 @@
 import unittest
 
-from src.functions import bezout
+from src._functions import bezout
 
 class TestBezout(unittest.TestCase):
 

@@ -1,8 +1,7 @@
+#!/usr/bin/env python3
+
 """ This module contains the Caesar class
 """
-
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 class Caesar(object):
     """ Caesar cipher implementation

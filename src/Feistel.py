@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """ This module contains the Feistel class
 """
 
-from src import utils
+import src._utils as utils
 
 class Feistel(object):
     """ Feistel block cipher implementation

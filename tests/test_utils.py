@@ -1,6 +1,6 @@
 import unittest
 
-from src.utils import binary_sum, binary_xor
+from src._utils import binary_sum, binary_xor
 
 class TestUtils(unittest.TestCase):
 

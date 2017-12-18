@@ -1,8 +1,11 @@
 #!usr/bin/env python3
-# -*- coding: utf-8 -*-
+
+""" Display an interactive menu in the console (ncurses)
+    with many options: cipher / decipher / hash / check hash / ...
+"""
 
 import curses
-from src.cli_functions import show_main_menu
+from src._cli_functions import show_main_menu
 
 if __name__ == '__main__':
     try:

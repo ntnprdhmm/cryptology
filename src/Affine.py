@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """ This module contains the Affine class
 """
 
-from src.functions import inverse
+from src._functions import inverse
 
 class Affine(object):
     """ Affine cipher implementation (monoalphabetic substitution)

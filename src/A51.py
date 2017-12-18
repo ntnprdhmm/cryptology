@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """ This module contains the A5/1 class
 """
 
-import src.utils as utils
+import src._utils as utils
 from src.LFSR import LFSR
 
 class A51(object):

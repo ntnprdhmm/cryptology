@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """ This module contains The DES class and all the DES's tables
 """
 
-from src import utils
+import src._utils as utils
 from src.Feistel import Feistel
 
 # initial permutation table

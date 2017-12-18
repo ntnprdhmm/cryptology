@@ -1,6 +1,6 @@
 import unittest
 
-from src.functions import gcd
+from src._functions import gcd
 
 class TestGCD(unittest.TestCase):
 

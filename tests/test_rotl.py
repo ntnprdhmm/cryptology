@@ -1,6 +1,6 @@
 import unittest
 
-from src.functions import rotl
+from src._functions import rotl
 
 class TestROTL(unittest.TestCase):
 

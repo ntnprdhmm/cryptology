@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
-# -*- coding:utf-8 -*-
 
 """ This module contains the Vernam class
 """
 
 import sys
-
-from src import utils
+import src._utils as utils
 
 class Vernam(object):
     """ Vernam cipher

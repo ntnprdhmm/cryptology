@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """ This module contains the CramerShoup class
 """
 
 from random import randint
 import sys
-from src.functions import (generate_safe_prime_number, find_safe_prime_generator)
-from src.utils import (write_file, list_to_string, read_file, add_padding)
+from src._functions import (generate_safe_prime_number, find_safe_prime_generator)
+from src._utils import (write_file, list_to_string, read_file, add_padding)
 from src.SHA1 import SHA1
 
 FILE_NAME = 'cramer_shoup'

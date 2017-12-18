@@ -1,6 +1,6 @@
 import unittest
 
-from src.functions import bytearray_xor
+from src._functions import bytearray_xor
 
 class TestBytearrayXor(unittest.TestCase):
 

@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 """ This module contains many math and cipher functions
 """
 
 import sys
 import string
-import random
 import itertools
 from math import sqrt, floor
-from random import randint, getrandbits
+from random import randint, getrandbits, randrange
 
 def rotl(n, rotations=1, w=32):
     """ binary rotation (left)
@@ -387,7 +385,7 @@ def miller_rabin_primality_test(n, k=2):
         s //= 2
 
     for _ in range(k):
-        a = random.randrange(2, n - 1)
+        a = randrange(2, n - 1)
         x = pow(a, s, n)
         if x == 1 or x == n - 1:
             continue
