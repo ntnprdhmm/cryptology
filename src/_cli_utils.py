@@ -4,7 +4,7 @@
 """
 
 import curses
-from src.utils import (read_file, write_file)
+from src._utils import (read_file, write_file)
 
 SCREEN = curses.initscr()
 

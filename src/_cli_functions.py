@@ -7,8 +7,8 @@
 import curses
 from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
-from src.utils import (read_file)
-from src.cli_utils import (SCREEN, wait_to_continu, print_option_header,
+from src._utils import (read_file)
+from src._cli_utils import (SCREEN, wait_to_continu, print_option_header,
                            print_data, load_data, output_result)
 
 def sha1_hash():
