@@ -8,6 +8,9 @@ import os
 import math
 import random
 
+def bytearray_to_int(byte_array):
+    return int.from_bytes(byte_array, byteorder='big', signed=False)
+
 def read_file(filename, directory="assets", read_bytes=False):
     """ Read the content of the given asset
 
