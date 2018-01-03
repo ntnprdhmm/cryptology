@@ -34,6 +34,25 @@ def print_option_header(title):
     SCREEN.addstr(title.upper())
     SCREEN.addstr("\n\n")
 
+def ask_question(question, answers, default_answer):
+    """ Ask a question to the user and return his response
+
+        Args:
+            question -- string -- the question to display
+            answers -- array of strings -- the authorized answers
+            default_answer -- string -- if the user answer nothing, this answer
+                is selected
+
+        return his answer
+    """
+    answer = None
+    while not answer in answers:
+        SCREEN.addstr(question + "\n")
+        answer = str(SCREEN.getstr())[2:-1]
+        if not answer:
+            answer = default_answer
+    return answer
+
 def load_data(data_name=None, to_string=False):
     """ Ask the data to the user. He has to choose between:
             - paste his text in the console
@@ -114,4 +133,4 @@ def print_data(data, message=None, done=False):
         SCREEN.addstr("DONE !!!\n")
     if message:
         SCREEN.addstr(message + "\n")
-    SCREEN.addstr(data + "\n\n")
+    SCREEN.addstr(str(data) + "\n\n")

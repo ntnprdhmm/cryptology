@@ -9,7 +9,7 @@ from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
 from src._utils import (read_file)
 from src._cli_utils import (SCREEN, wait_to_continu, print_option_header,
-                           print_data, load_data, output_result)
+                           print_data, load_data, output_result, ask_question)
 
 def sha1_hash():
     """ 1 - Ask the user to enter the data he wants to hash and hash it.
@@ -65,8 +65,8 @@ def cramer_shoup_generate_keys():
     wait_to_continu(next_step=show_main_menu)
 
 def cramer_shoup_cipher():
-    """ Ask the user to put the text he want to cipher in a specific file,
-        read the content of the file, cipher it, and put the content in a file
+    """ Ask the user the text he want to cipher, cipher it,
+        and return the ciphertext to him
     """
     print_option_header("cipher with cramer-shoup")
 
@@ -80,8 +80,8 @@ def cramer_shoup_cipher():
     wait_to_continu(next_step=show_main_menu)
 
 def cramer_shoup_decipher():
-    """ Ask the user to put the text he want to decipher in a specific file,
-        read the content of the file, decipher it, and put the content in a file
+    """ Ask the user to put the text he want to decipher, decipher it,
+        and return deciphertext to him
     """
     print_option_header("decipher a file with cramer-shoup")
     SCREEN.addstr("Please put your ciphertext in 'outputs/cramer_shoup.cipher' \n")
@@ -97,12 +97,72 @@ def cramer_shoup_decipher():
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
+def threefish_cipher():
+    """ Ask the user some configuration questions and the text he want to cipher,
+        cipher it, and return the ciphertext to him
+    """
+    print_option_header("cipher with threefish")
+
+    # ask the block size
+    block_size = ask_question(
+        question="Block size, in bits: '256', '512' or '1024' (default is '256')",
+        answers=['256', '512', '1024'],
+        default_answer='256'
+    )
+    print_data(block_size, "Choosen block size:")
+
+    # ask the key, or generate it
+    SCREEN.addstr("The format of the key for threefish is the following: \n")
+    SCREEN.addstr("a unicode string of length (block_size + 2*64) bits. \n")
+    SCREEN.addstr("(the 2 last words are the tweaks) \n\n")
+    generate_key = ask_question(
+        question="Do you have a key ? If no, the key will be generated: 'yes' or 'no' (default is 'no')",
+        answers=['yes', 'no'],
+        default_answer='no'
+    ) == "no"
+
+    if generate_key:
+        SCREEN.addstr("Generating a key...\n\n")
+    else:
+        SCREEN.addstr("You said that you already have a key.\n")
+        data = load_data(data_name="threefish key")
+
+    data = load_data(data_name="data to cipher")
+    SCREEN.addstr("Ciphering...\n")
+    # TODO: call the cipher method of threefish
+    ciphertext = "yoloo"
+
+    output_result(ciphertext, "threefish.cipher")
+    # wait before redirect to main menu
+    wait_to_continu(next_step=show_main_menu)
+
+def threefish_decipher():
+    """ Ask the user to put the text he want to decipher, decipher it,
+        and return deciphertext to him
+    """
+    print_option_header("decipher a file with threefish")
+    SCREEN.addstr("Please put your ciphertext in 'outputs/threefish.cipher' \n")
+    # wait
+    wait_to_continu()
+    # cipher
+    SCREEN.addstr("Reading the file...\n")
+    content = read_file("threefish.cipher", directory="outputs")
+    SCREEN.addstr("Deciphering the text...\n")
+    # TODO: call the decipher method of threefish
+    deciphertext = "yoloo"
+
+    output_result(deciphertext, "threefish.decipher")
+    # wait before redirect to main menu
+    wait_to_continu(next_step=show_main_menu)
+
 MENU_ITEMS = [
     ("Hash with SHA-1", sha1_hash),
     ("Check a SHA-1 hash", sha1_check),
     ("Generate keys for Cramer-Shoup", cramer_shoup_generate_keys),
     ("Cipher with Cramer-Shoup", cramer_shoup_cipher),
     ("Decipher with Cramer-Shoup", cramer_shoup_decipher),
+    ("Cipher with Threefish", threefish_cipher),
+    ("Decipher with Threefish", threefish_decipher),
     ("Quit", lambda: None)
 ]
 
