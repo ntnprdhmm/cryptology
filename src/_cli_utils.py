@@ -84,7 +84,7 @@ def output_result(data, default_filename="None"):
         choice = SCREEN.getch()
     if choice == 99:
         SCREEN.addstr("You choose 'in the console'.\n")
-        SCREEN.addstr("Here is the ouput:'.\n")
+        SCREEN.addstr("Here is the output:'.\n")
         SCREEN.addstr(data + "\n")
     else:
         SCREEN.addstr("You choose 'in a file'.\n")
