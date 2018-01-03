@@ -4,6 +4,7 @@
 """
 
 from _utils import bytearray_to_int
+from _functions import rotl
 
 class Threefish(object):
     """ Threefish implementation
@@ -11,6 +12,10 @@ class Threefish(object):
         Constants:
             C -- integer -- used in the rounds keys generation
             W_LEN -- integer -- the length of a word in a block
+            LEFT_ROTATION -- integer -- number of bits to rotate to the left.
+                used in the mix function
+            MASK -- integer -- we work with 64 bits words. The mask is used to keep
+                number on 64 bits (&)
 
         Attributes:
             block_size -- integer -- 32, 64 or 128 -- the size of a block, in bytes
@@ -20,6 +25,8 @@ class Threefish(object):
 
     C = bytearray.fromhex("1bd11bdaa9fc1a22")
     W_LEN = 8
+    LEFT_ROTATION = 49
+    MASK = 0xffffffffffffffff
 
     def __init__(self, block_size, u_key):
         """
@@ -61,22 +68,43 @@ class Threefish(object):
 
             next_round_key = key_words[(i+words_per_block-3) % (words_per_block+1)]
             next_round_key = bytearray_to_int(next_round_key)
-            next_round_key = (next_round_key + self.tweaks[i % 3]) & 0xff
+            next_round_key = (next_round_key + self.tweaks[i % 3]) & Threefish.MASK
             round_keys.append(next_round_key)
 
             next_round_key = key_words[(i+words_per_block-2) % (words_per_block+1)]
             next_round_key = bytearray_to_int(next_round_key)
-            next_round_key = (next_round_key + self.tweaks[(i+1) % 3]) & 0xff
+            next_round_key = (next_round_key + self.tweaks[(i+1) % 3]) & Threefish.MASK
             round_keys.append(next_round_key)
 
             next_round_key = key_words[(i+words_per_block-1) % (words_per_block+1)]
             next_round_key = bytearray_to_int(next_round_key)
-            next_round_key = (next_round_key + i) & 0xff
+            next_round_key = (next_round_key + i) & Threefish.MASK
             round_keys.append(next_round_key)
 
             self.rounds_keys.append(round_keys)
+
+    @staticmethod
+    def mix(m1, m2):
+        """ mix 2 words
+
+            Args:
+                m1 -- integer -- a word
+                m2 -- integer -- another word
+
+            return a tuple, with the 2 mixed words
+        """
+        new_m1 = (m1 + m2) & Threefish.MASK
+        new_m2 = new_m1 ^ (rotl(m2, rotations=Threefish.LEFT_ROTATION, w=Threefish.W_LEN*8))
+        return (new_m1, new_m2)
+
 
 from random import getrandbits
 key = bytearray(getrandbits(8) for _ in range(64))
 fish = Threefish(64, key)
 fish.key_schedule()
+x1 = getrandbits(Threefish.W_LEN*8)
+x2 = getrandbits(Threefish.W_LEN*8)
+print(x1)
+print(x2)
+print(len(bin(x1)))
+print(Threefish.mix(x1, x2))
