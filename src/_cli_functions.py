@@ -76,7 +76,7 @@ def cramer_shoup_cipher():
     print_option_header("cipher with cramer-shoup")
 
     data = load_data(data_name="data to cipher")
-    SCREEN.addstr("Ciphering...\n")
+    SCREEN.addstr("Ciphering...\n\n")
     # ciphertext is a list (b1, b2, c, v)
     ciphertext = CramerShoup.cipher(data)
 
@@ -115,14 +115,13 @@ def threefish_cipher():
         answers=['256', '512', '1024'],
         default_answer='256'
     ))
-    print_data(block_size, "Choosen block size:")
 
     key_length = ((block_size + 2*64) // 8)
     # ask the key, or generate it
-    SCREEN.addstr("The format of the key for threefish is the following: \n")
-    SCREEN.addstr("a unicode string of length (block_size + 2*64 bits) / 8. \n")
-    SCREEN.addstr("(the 2 last words are the tweaks) \n")
-    SCREEN.addstr("With the block_size you choose, the key must have a length of %d \n\n"
+    print_info("\nThe format of the key for threefish is the following: \n")
+    print_info("a unicode string of length (block_size + 2*64 bits) / 8. \n")
+    print_info("(the 2 last words are the tweaks) \n")
+    print_info("With the block_size you choose, the key must have a length of %d \n\n"
                   % key_length)
     generate_key = ask_question(
         question="Do you have a key ? If no, the key will be generated",
@@ -140,7 +139,7 @@ def threefish_cipher():
         key = load_data(data_name="threefish key")
 
     data = load_data(data_name="data to cipher")
-    SCREEN.addstr("Ciphering...\n")
+    SCREEN.addstr("\nCiphering...\n\n")
     # TODO: call the cipher method of threefish
     ciphertext = "yoloo"
 

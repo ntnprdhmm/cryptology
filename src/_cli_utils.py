@@ -58,7 +58,8 @@ def ask_question(question, answers, default_answer):
             SCREEN.addstr(", ")
         SCREEN.addstr(answers[len(answers)-1],
                       curses.color_pair(3 if answers[len(answers)-1] == default_answer else 0))
-        SCREEN.addstr(")")
+        SCREEN.addstr(")\n")
+        curses.echo()
         user_answer = str(SCREEN.getstr())[2:-1]
         if not user_answer:
             user_answer = default_answer
@@ -82,16 +83,18 @@ def load_data(data_name=None, to_string=False):
     print_help("- press 'f' if you want to choose a file\n\n")
     choice = -1
     while choice != 102 and choice != 116:
+        curses.noecho()
         choice = SCREEN.getch()
     if choice == 116:
         SCREEN.addstr("You choose to type directly in the console.\n\n")
         print_instruction("Enter your data:\n")
+        curses.echo()
         data = SCREEN.getstr()
-        SCREEN.addstr(str(data)[2:-1] + "\n\n")
     else:
         SCREEN.addstr("You choose to load it by file.\n\n")
         print_help("Your file must be in the '/assets' directory.\n")
         print_instruction("Enter the name of your file:\n")
+        curses.echo()
         filename = str(SCREEN.getstr())[2:-1]
         data = read_file(filename, read_bytes=True)
 
@@ -112,6 +115,7 @@ def output_result(data, default_filename="None"):
 
     choice = -1
     while choice != 99 and choice != 102:
+        curses.noecho()
         choice = SCREEN.getch()
     if choice == 99:
         SCREEN.addstr("You choose 'in the console'.\n\n")
@@ -125,6 +129,7 @@ def output_result(data, default_filename="None"):
             print_info("(" + default_filename + ")")
         SCREEN.addstr(": \n")
         # read the filename
+        curses.echo()
         filename = str(SCREEN.getstr())[2:-1]
         if len(filename) == 0:
             filename = default_filename
