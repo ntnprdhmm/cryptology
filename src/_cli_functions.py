@@ -10,14 +10,15 @@ from src.CramerShoup import CramerShoup
 from src._utils import (read_file)
 from src._functions import (generate_random_unicode_string)
 from src._cli_utils import (SCREEN, wait_to_continu, print_option_header,
-                           print_data, load_data, output_result, ask_question)
+                           print_data, load_data, output_result, ask_question,
+                           print_instruction, print_help, print_result, print_info)
 
 def sha1_hash():
     """ 1 - Ask the user to enter the data he wants to hash and hash it.
         2 - Ask the user if he want the result in the console or in a file.
     """
     print_option_header("hash with sha-1")
-    data = load_data()
+    data = load_data(data_name="text to hash")
     text_hash = SHA1().hash(data)
     output_result(text_hash, "sha1.hash")
     # wait before redirect to main menu
@@ -29,20 +30,20 @@ def sha1_check():
     """
     print_option_header("check a text's sha-1 hash")
 
-    text = load_data(data_name="your data")
+    text = load_data(data_name="the text")
     true_hash = load_data(data_name="the real hash", to_string=True)
 
     # hash the text
-    SCREEN.addstr("Hashing your text...\n")
+    SCREEN.addstr("Hashing your text...\n\n")
     text_hash = SHA1().hash(text)
     # print the hash
     print_data(text_hash, "Here's the text's hash:")
 
     # print the result
     if text_hash == true_hash:
-        SCREEN.addstr("SUCCESS: The text hasn't been modified.\n")
+        print_result("SUCCESS: The text hasn't been modified.\n")
     else:
-        SCREEN.addstr("WARNING: The text has been modified.\n")
+        print_result("WARNING: The text has been modified.\n")
 
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
@@ -52,15 +53,18 @@ def cramer_shoup_generate_keys():
     """
     print_option_header("generate keys for cramer-shoup")
 
+    print_info("Both public and private keys will be generated.\n")
+    print_info("They will be put in the 'outputs' directory:\n")
+    print_info("- 'cramer-shoup'        => the private key\n")
+    print_info("- 'cramer-shoup.pub'    => the public key\n")
+
     wait_to_continu()
 
-    SCREEN.addstr("generating keys...\n")
-    SCREEN.addstr("\n")
+    SCREEN.addstr("generating keys...\n\n")
 
     CramerShoup.key_generation()
 
-    SCREEN.addstr("keys have been generated !\n")
-    SCREEN.addstr("\n")
+    print_result("keys have been generated !\n")
 
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
@@ -85,13 +89,14 @@ def cramer_shoup_decipher():
         and return deciphertext to him
     """
     print_option_header("decipher a file with cramer-shoup")
-    SCREEN.addstr("Please put your ciphertext in 'outputs/cramer_shoup.cipher' \n")
+
+    print_instruction("Please put your ciphertext in 'outputs/cramer_shoup.cipher' \n")
     # wait
     wait_to_continu()
     # cipher
-    SCREEN.addstr("Reading the file...\n")
+    SCREEN.addstr("\nReading the file...\n\n")
     content = read_file("cramer_shoup.cipher", directory="outputs")
-    SCREEN.addstr("Deciphering the text...\n")
+    SCREEN.addstr("Deciphering the text...\n\n")
     deciphertext = CramerShoup.decipher(content)
 
     output_result(deciphertext, "cramer_shoup.decipher")
@@ -106,7 +111,7 @@ def threefish_cipher():
 
     # ask the block size
     block_size = int(ask_question(
-        question="Block size, in bits: '256', '512' or '1024' (default is '256')",
+        question="Block size, in bits",
         answers=['256', '512', '1024'],
         default_answer='256'
     ))
@@ -120,7 +125,7 @@ def threefish_cipher():
     SCREEN.addstr("With the block_size you choose, the key must have a length of %d \n\n"
                   % key_length)
     generate_key = ask_question(
-        question="Do you have a key ? If no, the key will be generated: 'yes' or 'no' (default is 'no')",
+        question="Do you have a key ? If no, the key will be generated",
         answers=['yes', 'no'],
         default_answer='no'
     ) == "no"
@@ -180,6 +185,15 @@ def show_main_menu():
     key = None
     current_pos = 0
 
+    # enable colors
+    curses.start_color()
+    # define color pairs
+    curses.init_pair(1, curses.COLOR_RED, curses.COLOR_BLACK)
+    curses.init_pair(2, curses.COLOR_CYAN, curses.COLOR_BLACK)
+    curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(4, curses.COLOR_GREEN, curses.COLOR_BLACK)
+    curses.init_pair(5, curses.COLOR_MAGENTA, curses.COLOR_BLACK)
+
     # loop until the user chooses an option
     while not (key == curses.KEY_ENTER or key == 10 or key == 13):
         # remove the menu of the previous loop to draw a new one
@@ -189,15 +203,16 @@ def show_main_menu():
         curses.curs_set(0)
         SCREEN.keypad(1)
         # Draw the menu heading
-        SCREEN.addstr("Hello World !\n")
+        SCREEN.addstr("Hello World !\n", curses.A_BOLD | curses.color_pair(1))
         SCREEN.addstr("\n")
-        SCREEN.addstr("Choose what you want to do:\n")
-        SCREEN.addstr("(use your arrow keys, and press 'enter' to select):\n")
+        print_instruction("Choose what you want to do:\n\n")
+        print_help("use your arrow keys or numeric pad to move\n")
+        print_help("press 'enter' key to select an option\n")
         SCREEN.addstr("\n")
         # Draw the menu items
         for i, item in enumerate(MENU_ITEMS):
             if i == current_pos:
-                SCREEN.addstr(">> ")
+                SCREEN.addstr(">> ", curses.color_pair(3))
             SCREEN.addstr(str(i+1) + ". " + item[0] + "\n")
 
         # listen user's input
