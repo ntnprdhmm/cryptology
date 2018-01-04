@@ -8,6 +8,7 @@ import curses
 from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
 from src._utils import (read_file)
+from src._functions import (generate_random_unicode_string)
 from src._cli_utils import (SCREEN, wait_to_continu, print_option_header,
                            print_data, load_data, output_result, ask_question)
 
@@ -104,17 +105,20 @@ def threefish_cipher():
     print_option_header("cipher with threefish")
 
     # ask the block size
-    block_size = ask_question(
+    block_size = int(ask_question(
         question="Block size, in bits: '256', '512' or '1024' (default is '256')",
         answers=['256', '512', '1024'],
         default_answer='256'
-    )
+    ))
     print_data(block_size, "Choosen block size:")
 
+    key_length = ((block_size + 2*64) // 8)
     # ask the key, or generate it
     SCREEN.addstr("The format of the key for threefish is the following: \n")
-    SCREEN.addstr("a unicode string of length (block_size + 2*64) bits. \n")
-    SCREEN.addstr("(the 2 last words are the tweaks) \n\n")
+    SCREEN.addstr("a unicode string of length (block_size + 2*64 bits) / 8. \n")
+    SCREEN.addstr("(the 2 last words are the tweaks) \n")
+    SCREEN.addstr("With the block_size you choose, the key must have a length of %d \n\n"
+                  % key_length)
     generate_key = ask_question(
         question="Do you have a key ? If no, the key will be generated: 'yes' or 'no' (default is 'no')",
         answers=['yes', 'no'],
@@ -123,9 +127,12 @@ def threefish_cipher():
 
     if generate_key:
         SCREEN.addstr("Generating a key...\n\n")
+        key = generate_random_unicode_string(key_length)
+        print_data(key, "Generated key")
+        key = bytes(key, 'utf-8')
     else:
         SCREEN.addstr("You said that you already have a key.\n")
-        data = load_data(data_name="threefish key")
+        key = load_data(data_name="threefish key")
 
     data = load_data(data_name="data to cipher")
     SCREEN.addstr("Ciphering...\n")

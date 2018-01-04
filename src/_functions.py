@@ -563,3 +563,20 @@ def find_safe_prime_generator(p, q):
     while pow(a, (p-1)//2, p) == 1 or pow(a, (p-1)//q, p) == 1:
         a = randint(0, p-1)
     return a
+
+def generate_random_unicode_string(length=8):
+    """
+        Generate a random unicode string, with only printable characters
+
+        Args:
+            length -- int -- the length of the string to generate
+
+        return the generated string
+    """
+    random_generated_chars = []
+    for _ in range(length):
+        c = chr(getrandbits(8))
+        while not c.isprintable():
+            c = chr(getrandbits(8))
+        random_generated_chars.append(c)
+    return ''.join(random_generated_chars)
