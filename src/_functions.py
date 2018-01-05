@@ -21,6 +21,18 @@ def rotl(n, rotations=1, w=32):
     """
     return (n << rotations%w) & (2**w-1) | ((n & (2**w-1)) >> (w-(rotations%w)))
 
+def rotr(n, rotations=1, w=32):
+    """ binary rotation (right)
+
+        Args:
+            n -- int -- number to rotate,
+            rotations -- int -- number of rotations
+            w -- int -- max size in bits for n
+
+        return n rotated
+    """
+    return ((n & (2**w-1)) >> rotations%w) | (n << (w-(rotations%w)) & (2**w-1))
+
 def bytearray_xor(b1, b2):
     """ xor 2 bytearray
 
