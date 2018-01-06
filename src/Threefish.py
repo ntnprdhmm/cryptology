@@ -3,8 +3,8 @@
 """ This module contains the Threefish class
 """
 
-from src._utils import bytearray_to_int
-from src._functions import rotl, rotr
+from _utils import bytearray_to_int
+from _functions import rotl, rotr
 
 class Threefish(object):
     """ Threefish implementation
@@ -14,6 +14,7 @@ class Threefish(object):
             W_LEN -- integer -- the length of a word in a block
             MASK -- integer -- we work with 64 bits words. The mask is used to keep
                 number on 64 bits (&)
+            P -- tuple of int -- permutation table for the permutation function
 
         Attributes:
             block_size -- integer -- 32, 64 or 128 -- the size of a block, in bytes
@@ -24,6 +25,7 @@ class Threefish(object):
     C = bytearray.fromhex("1bd11bdaa9fc1a22")
     W_LEN = 8
     MASK = 0xffffffffffffffff
+    P = (0, 3, 2, 1, 4, 7, 5, 6, 15, 9, 11, 13, 8, 14, 10, 12)
 
     def __init__(self, block_size, u_key):
         """
@@ -95,7 +97,7 @@ class Threefish(object):
 
             return a tuple, with the 2 mixed words
         """
-        # Addition in int
+        # sum in int
         new_m1 = (int.from_bytes(m1, 'big') + int.from_bytes(m2, 'big')) & Threefish.MASK
 
         # Make the rotation in int
@@ -119,7 +121,7 @@ class Threefish(object):
 
             return a tuple, with the 2 unmixed words
         """
-        # Cast in integers and xor back to get m2 after rotl
+        # Cast to int and xor back to get m2 after rotl
         temp_m2 = int.from_bytes(m1, 'big') ^ int.from_bytes(m2, 'big')
 
         # Make the rotr to cancel rotl
@@ -135,35 +137,14 @@ class Threefish(object):
 
     @staticmethod
     def permute(block):
-        """ permute 1 block
+        """ permute the given block using the permutation table
 
             Args:
-                b -- bytearray -- a block
+                b -- list -- a block
 
-            return a permuted block
+            return the block permuted
         """
-        length = len(block)
-        if length == 4: block[0], block[1], block[2], block[3] = block[0], block[3], block[2], block[1]
-        elif length == 8: block[0], block[1], block[2], block[3], block[4], block[5], block[6], block[7] = block[2], block[1], block[4], block[7], block[6], block[5], block[0], block[3]
-        elif length == 16: block[0], block[1], block[2], block[3], block[4], block[5], block[6], block[7], block[8], block[9], block[10], block[11], block[12], block[13], block[14], block[15] = block[0], block[9], block[2], block[13], block[6], block[11], block[4], block[15], block[10], block[7], block[12], block[3], block[14], block[5], block[8], block[1]
-        else: print ("Error in permutation, block length = {}".format(length))
-        return block
-
-    @staticmethod
-    def permute_inv(block):
-        """ invert the permute on a block
-
-            Args:
-                b -- bytearray -- a block
-
-            return a unpermuted block
-        """
-        length = len(block)
-        if length == 4: block[0], block[3], block[2], block[1] = block[0], block[1], block[2], block[3]
-        elif length == 8: block[2], block[1], block[4], block[7], block[6], block[5], block[0], block[3] = block[0], block[1], block[2], block[3], block[4], block[5], block[6], block[7]
-        elif length == 16: block[0], block[9], block[2], block[13], block[6], block[11], block[4], block[15], block[10], block[7], block[12], block[3], block[14], block[5], block[8], block[1] = block[0], block[1], block[2], block[3], block[4], block[5], block[6], block[7], block[8], block[9], block[10], block[11], block[12], block[13], block[14], block[15]
-        else: print ("Error in permutation, block length = {}".format(length))
-        return(block)
+        return [block[Threefish.P[i]] for i in range(len(block))]
 
     @staticmethod
     def put_in_blocks(text, block_size):
@@ -239,7 +220,7 @@ class Threefish(object):
             return a bytearray, the block after the inveted round
         """
         # Permutation
-        block = Threefish.permute_inv(block)
+        block = Threefish.permute(block)
         # Subsitution (8*2) because we are taking pairs of numbers
         for i in range(0, self.block_size // (8*2)):
             block[2*i], block[2*i + 1] = Threefish.mix_inv(block[2*i], block[2*i+1])
@@ -345,7 +326,7 @@ class Threefish(object):
 
         return result
 
-"""
+
 from _functions import (generate_random_unicode_string)
 
 #### TEST PART ####
@@ -367,7 +348,7 @@ print(to_cipher.decode('utf-8'))
 print("ciphertext :")
 things_ciphered = fish.cipher(to_cipher)
 print(things_ciphered)
-
+"""
 things_ciphered = int.from_bytes(things_ciphered, byteorder='big')
 things_ciphered = things_ciphered.to_bytes(32, byteorder='big')
 
@@ -375,10 +356,9 @@ things_ciphered = str(things_ciphered)
 
 things_ciphered = bytes(things_ciphered[2:-1], 'utf-8')
 print(things_ciphered)
-
+"""
 
 print("deciphered text :")
 deciphered = fish.decipher(things_ciphered)
 print(deciphered)
 print(deciphered.decode('utf-8'))
-"""
