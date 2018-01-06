@@ -139,13 +139,37 @@ def threefish_cipher():
         SCREEN.addstr("You said that you already have a key.\n")
         key = load_data(data_name="threefish key")
 
+    # ask the cipher mode
+    cbc = ask_question(
+        question="Choose the cipher mode",
+        answers=['ECB', 'CBC'],
+        default_answer='ECB'
+    ) == "CBC"
+
+    if cbc:
+        # ask if user already has a initialization vector
+        generate_iv = ask_question(
+            question="Do you have a initialization vector ? If no, it will be generated.",
+            answers=['yes', 'no'],
+            default_answer='no'
+        ) == "no"
+
+        if generate_iv:
+            SCREEN.addstr("Generating a initialization vector...\n\n")
+            iv = generate_random_unicode_string(key_length)
+            print_data(iv, "Generated initialization vector")
+            iv = bytes(iv, 'utf-8')
+        else:
+            SCREEN.addstr("You said that you already have an initialization vector.\n")
+            iv = load_data(data_name="initialization vector")
+
     # create a new Threefish instance
     threefish = Threefish(block_size//8, key)
     threefish.key_schedule()
 
     data = load_data(data_name="data to cipher")
     SCREEN.addstr("\nCiphering...\n\n")
-    ciphertext = threefish.cipher(data)
+    ciphertext = threefish.cipher(data, iv if cbc else None)
 
     output_result(ciphertext, "threefish.cipher", write_bytes=True)
     # wait before redirect to main menu
@@ -167,6 +191,18 @@ def threefish_decipher():
     # ask for the key
     key = load_data(data_name="threefish key")
 
+    # ask the cipher mode
+    cbc = ask_question(
+        question="Choose the cipher mode",
+        answers=['ECB', 'CBC'],
+        default_answer='ECB'
+    ) == "CBC"
+
+    if cbc:
+        # ask for the IV
+        SCREEN.addstr("You said that you already have an initialization vector.\n")
+        iv = load_data(data_name="initialization vector")
+
     # create a new Threefish instance
     threefish = Threefish(block_size//8, key)
     threefish.key_schedule()
@@ -178,7 +214,7 @@ def threefish_decipher():
     SCREEN.addstr("Reading the file...\n")
     data = read_file("threefish.cipher", directory="outputs", read_bytes=True)
     SCREEN.addstr("Deciphering the text...\n")
-    deciphertext = threefish.decipher(data)
+    deciphertext = threefish.decipher(data, iv if cbc else None)
 
     output_result(deciphertext.decode('utf-8'), "threefish.decipher")
     # wait before redirect to main menu

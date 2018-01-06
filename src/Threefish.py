@@ -174,8 +174,6 @@ class Threefish(object):
 
             return a list: the text cutted in blocks
         """
-        assert(len(text)%block_size == 0), "The text need some padding."
-
         blocks = []
         # for each block we can make from the text
         for i in range(0, len(text)//block_size):
@@ -235,7 +233,7 @@ class Threefish(object):
 
             Args:
                 plaintext -- bytes -- the text to cipher in bytes
-                IV -- list of bytes -- the initialization vector if case of CBC cipher mode
+                IV -- bytes -- the initialization vector if case of CBC cipher mode
 
             By default, the cipher mode is ECB. If there is an IV (initialization vector)
             passed as parameter, the encryption mode will be CBC
@@ -244,8 +242,11 @@ class Threefish(object):
         """
         # add padding to the plaintext
         plaintext = bytes(add_padding(plaintext, block_size=self.block_size*8))
-        # cut the plaintext in block
+        # cut the plaintext in blocks
         blocks = self.blockify(plaintext, self.block_size)
+        # cut the IV in blocks
+        if IV:
+            IV = self.blockify(IV, self.block_size)[0]
 
         ciphered_blocks = []
         # Go through blocks
@@ -287,6 +288,9 @@ class Threefish(object):
         """
         # cut the ciphertext in blocks
         ciphered_blocks = self.blockify(ciphertext, self.block_size)
+        # cut the IV in blocks
+        if IV:
+            IV = self.blockify(IV, self.block_size)[0]
 
         blocks = [None]*(len(ciphered_blocks))
         # loop through ciphered blocks
@@ -339,27 +343,17 @@ fish.key_schedule()
 # Bytes size = 10240 -> 81920 bits
 to_cipher = bytes("yolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swagg",'utf-8')
 
-# IV to test CBC
-InitVect = [bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8')]
+
+IV = bytes(generate_random_unicode_string(32), 'utf-8')
 
 # Print in string encoded in utf-8
 print(to_cipher.decode('utf-8'))
 print("ciphertext :")
-things_ciphered = fish.cipher(to_cipher, InitVect)
+things_ciphered = fish.cipher(to_cipher, IV)
 print(things_ciphered)
-print(things_ciphered.decode('utf-8'))
-
-things_ciphered = int.from_bytes(things_ciphered, byteorder='big')
-things_ciphered = things_ciphered.to_bytes(32, byteorder='big')
-
-things_ciphered = str(things_ciphered)
-
-things_ciphered = bytes(things_ciphered[2:-1], 'utf-8')
-print(things_ciphered)
-
 
 print("deciphered text :")
-deciphered = fish.decipher(things_ciphered, InitVect)
+deciphered = fish.decipher(things_ciphered, IV)
 print(deciphered)
 print(deciphered.decode('utf-8'))
 """
