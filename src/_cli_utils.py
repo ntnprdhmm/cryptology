@@ -100,7 +100,7 @@ def load_data(data_name=None, to_string=False):
 
     return str(data)[2:-1] if to_string else data
 
-def output_result(data, default_filename="None"):
+def output_result(data, default_filename="None", write_bytes=False):
     """ Ask the user where he wants the result to be output
             - print it in the console
             - save it in a file
@@ -134,7 +134,7 @@ def output_result(data, default_filename="None"):
         if len(filename) == 0:
             filename = default_filename
         # write in the file
-        write_file(filename, data)
+        write_file(filename, data, write_bytes=write_bytes)
         print_result("The output has been wrote in '/outputs/" + filename + "' \n")
 
 def print_data(data, message=None, done=False):

@@ -3,8 +3,8 @@
 """ This module contains the Threefish class
 """
 
-from _utils import (bytearray_to_int, add_padding)
-from _functions import rotl, rotr
+from src._utils import (bytearray_to_int, add_padding)
+from src._functions import rotl, rotr
 
 class Threefish(object):
     """ Threefish implementation
@@ -325,7 +325,7 @@ class Threefish(object):
 
         return plaintext
 
-
+"""
 from _functions import (generate_random_unicode_string)
 
 #### TEST PART ####
@@ -347,7 +347,8 @@ print(to_cipher.decode('utf-8'))
 print("ciphertext :")
 things_ciphered = fish.cipher(to_cipher, InitVect)
 print(things_ciphered)
-"""
+print(things_ciphered.decode('utf-8'))
+
 things_ciphered = int.from_bytes(things_ciphered, byteorder='big')
 things_ciphered = things_ciphered.to_bytes(32, byteorder='big')
 
@@ -355,9 +356,10 @@ things_ciphered = str(things_ciphered)
 
 things_ciphered = bytes(things_ciphered[2:-1], 'utf-8')
 print(things_ciphered)
-"""
+
 
 print("deciphered text :")
 deciphered = fish.decipher(things_ciphered, InitVect)
 print(deciphered)
 print(deciphered.decode('utf-8'))
+"""

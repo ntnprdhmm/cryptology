@@ -147,7 +147,7 @@ def threefish_cipher():
     SCREEN.addstr("\nCiphering...\n\n")
     ciphertext = threefish.cipher(data)
 
-    output_result(str(int.from_bytes(ciphertext, byteorder='big')), "threefish.cipher")
+    output_result(ciphertext, "threefish.cipher", write_bytes=True)
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
@@ -176,8 +176,7 @@ def threefish_decipher():
     wait_to_continu()
     # cipher
     SCREEN.addstr("Reading the file...\n")
-    data = read_file("threefish.cipher", directory="outputs")
-    data = int(data).to_bytes((block_size + 7)//8, byteorder='big')
+    data = read_file("threefish.cipher", directory="outputs", read_bytes=True)
     SCREEN.addstr("Deciphering the text...\n")
     deciphertext = threefish.decipher(data)
 

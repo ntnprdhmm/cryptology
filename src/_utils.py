@@ -54,14 +54,14 @@ def add_padding(stream, block_size=1024):
 
     return bytearray(stream)
 
-def write_file(filename, data):
+def write_file(filename, data, write_bytes=False):
     """ Write content in a file ('outputs' directory)
 
         Args:
             filename -- string -- the output file name
             data -- string -- the content to write in the file
     """
-    f = open(os.path.abspath("outputs/" + filename), "w")
+    f = open(os.path.abspath("outputs/" + filename), "wb" if write_bytes else "w")
     f.write(data)
     f.close()
 
