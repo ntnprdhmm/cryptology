@@ -3,7 +3,7 @@
 """ This module contains the Threefish class
 """
 
-from _utils import bytearray_to_int
+from _utils import (bytearray_to_int, add_padding)
 from _functions import rotl, rotr
 
 class Threefish(object):
@@ -147,54 +147,29 @@ class Threefish(object):
         return [block[Threefish.P[i]] for i in range(len(block))]
 
     @staticmethod
-    def put_in_blocks(text, block_size):
-        """ put a bytes into a bytearray of "block" with block_size as each block size and each block is a bytearray of words of W_LEN size in bytes
+    def blockify(text, block_size):
+        """ Cut the given text in a list of blocks,
+            and each blocks in a list of words
 
             Args:
-                text -- bytes -- a bytes string containing the string to splice in blocks
-                block_size -- integer -- the size of a returned block
+                text -- bytes -- the bytes string to cut in block
+                block_size -- integer -- the size of a block, in bytes
 
-            return a bytearray
+            return a list: the text cutted in blocks
         """
+        assert(len(text)%block_size == 0), "The text need some padding."
 
-        res = []
-        i = 0
-
-        #run through the text
-        while i < len(text):
-            block = []
-            if (i + block_size) < len(text):
-                temp_block = text[i:i+block_size]
-
-                # if not enough bits, add padding
-                while len(temp_block) < block_size:
-                    temp_block += bytes("\x00", 'utf-8')
-
-                # Slice in words
-                j = 0
-                while j in range(len(temp_block)):
-                    block.append(temp_block[j:j+Threefish.W_LEN])
-                    j += Threefish.W_LEN
-
-                res.append(block)
-                i += block_size
-            else:
-                temp_block = text[i:len(text)]
-
-                # if not enough bits, add padding
-                while len(temp_block) < block_size:
-                    temp_block += bytes("\x00", 'utf-8')
-
-                # Slice in words
-                j = 0
-                while j in range(len(temp_block)):
-                    block.append(temp_block[j:j+Threefish.W_LEN])
-                    j += Threefish.W_LEN
-
-                res.append(block)
-                i = len(text)
-
-        return res
+        blocks = []
+        # for each block we can make from the text
+        for i in range(0, len(text)//block_size):
+            # get the block
+            block = text[(i*block_size):((i+1)*block_size)]
+            # cut the block in words
+            words = [block[(j*Threefish.W_LEN):((j+1)*Threefish.W_LEN)]
+                     for j in range(0, block_size // Threefish.W_LEN)]
+            # append the words to the list of blocks
+            blocks.append(words)
+        return blocks
 
     def threefish_round(self, block):
         """ take a block and make 1 round (substitution + permutation) on it
@@ -236,8 +211,11 @@ class Threefish(object):
 
             return the ciphered text as bytes
         """
-        # Put the text to cipher in blocks of words of W_LEN and of block_size in bytes (32 = 256 or 64 = 512 or 128 = 1024) and add a padding if necessary
-        to_cipher = self.put_in_blocks(bytes_to_cipher, self.block_size)
+        # add padding to the text
+        bytes_to_cipher = bytes(add_padding(bytes_to_cipher, block_size=self.block_size*8))
+
+        # Put the text to cipher in blocks of words of W_LEN and of block_size in bytes (32 = 256 or 64 = 512 or 128 = 1024)
+        to_cipher = self.blockify(bytes_to_cipher, self.block_size)
         ciphered_text = [None]*(len(to_cipher))
         # Go through blocks
         for i in range(len(to_cipher)):
@@ -271,7 +249,6 @@ class Threefish(object):
         # Set result as a big bytes containing the entire ciphered text
         for i in range(len(ciphered_text)):
             for j in range(len(ciphered_text[i])):
-                while (len(ciphered_text[i][j]) != 8): ciphered_text[i][j] = bytes("\x00", 'utf-8') + ciphered_text[i][j]
                 result += ciphered_text[i][j]
 
         return result
@@ -285,8 +262,8 @@ class Threefish(object):
 
             return the deciphered text
         """
-        # Put the text to decipher in blocks of words of W_LEN and of block_size in bytes (32 = 256 or 64 = 512 or 128 = 1024) and add a padding if necessary
-        to_decipher = self.put_in_blocks(bytes_to_decipher, self.block_size)
+        # Put the text to decipher in blocks of words of W_LEN and of block_size in bytes (32 = 256 or 64 = 512 or 128 = 1024)
+        to_decipher = self.blockify(bytes_to_decipher, self.block_size)
         deciphered_text = [None]*(len(to_decipher))
         # Go through blocks
         for i in range(len(to_decipher)-1, -1, -1):
@@ -321,8 +298,11 @@ class Threefish(object):
         # Set result as a big bytes containing the entire ciphered text
         for i in range(len(deciphered_text)):
             for j in range(len(deciphered_text[i])):
-                while (len(deciphered_text[i][j]) != 8): deciphered_text[i][j] = bytes("\x00", 'utf-8') + deciphered_text[i][j]
                 result += deciphered_text[i][j]
+
+        # remove padding
+        padding_size = int.from_bytes(result[-2:], byteorder="big")
+        result = result[:len(result) - padding_size]
 
         return result
 
@@ -338,7 +318,7 @@ fish = Threefish(32, key)
 fish.key_schedule()
 
 # Bytes size = 10240 -> 81920 bits
-to_cipher = bytes("yolo swagg",'utf-8')
+to_cipher = bytes("yolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swagg",'utf-8')
 
 # IV to test CBC
 #InitVect = [bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8')]
