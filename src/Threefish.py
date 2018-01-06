@@ -15,6 +15,7 @@ class Threefish(object):
             MASK -- integer -- we work with 64 bits words. The mask is used to keep
                 number on 64 bits (&)
             P -- tuple of int -- permutation table for the permutation function
+            NB_ROUNDS -- integer -- the number of rounds
 
         Attributes:
             block_size -- integer -- 32, 64 or 128 -- the size of a block, in bytes
@@ -26,6 +27,7 @@ class Threefish(object):
     W_LEN = 8
     MASK = 0xffffffffffffffff
     P = (0, 3, 2, 1, 4, 7, 5, 6, 15, 9, 11, 13, 8, 14, 10, 12)
+    NB_ROUNDS = 76
 
     def __init__(self, block_size, u_key):
         """
@@ -218,110 +220,110 @@ class Threefish(object):
 
         return(block)
 
-    def cipher(self, bytes_to_cipher, IV=None):
+
+    @staticmethod
+    def xor_with_block(block, key):
+        # Go through words and xor key
+        for j, word in enumerate(block):
+            temp_to_cipher = (int.from_bytes(word, 'big')) ^ (int.from_bytes(key[j], 'big'))
+            block[j] = temp_to_cipher.to_bytes((temp_to_cipher.bit_length() + 7) // 8, 'big')
+        return block
+
+    def cipher(self, plaintext, IV=None):
         """
-            Cipher the text with ECB or CBC encryption methods
+            Cipher the given.
 
             Args:
-                bytes_to_cipher -- bytes -- the text to cipher
-                IV -- bytearray -- the initialization vector if we are in CBC encryption method
+                plaintext -- bytes -- the text to cipher in bytes
+                IV -- list of bytes -- the initialization vector if case of CBC cipher mode
+
+            By default, the cipher mode is ECB. If there is an IV (initialization vector)
+            passed as parameter, the encryption mode will be CBC
 
             return the ciphered text as bytes
         """
-        # add padding to the text
-        bytes_to_cipher = bytes(add_padding(bytes_to_cipher, block_size=self.block_size*8))
+        # add padding to the plaintext
+        plaintext = bytes(add_padding(plaintext, block_size=self.block_size*8))
+        # cut the plaintext in block
+        blocks = self.blockify(plaintext, self.block_size)
 
-        # Put the text to cipher in blocks of words of W_LEN and of block_size in bytes (32 = 256 or 64 = 512 or 128 = 1024)
-        to_cipher = self.blockify(bytes_to_cipher, self.block_size)
-        ciphered_text = [None]*(len(to_cipher))
+        ciphered_blocks = []
         # Go through blocks
-        for i in range(len(to_cipher)):
-            # Treating CBC encryption instead of ECB if an Initialization Vector has been passed as parameters
-            if(IV):
-                if(i==0):
-                    for j in range(0, len(to_cipher[i])):
-                        temp_to_cipher = (int.from_bytes(to_cipher[i][j], 'big')) ^ (int.from_bytes(IV[j], 'big'))
-                        to_cipher[i][j] = temp_to_cipher.to_bytes((temp_to_cipher.bit_length() + 7) // 8, 'big')
-                else:
-                    for j in range(0, len(to_cipher[i])):
-                        temp_to_cipher = (int.from_bytes(to_cipher[i-1][j], 'big')) ^ (int.from_bytes(to_cipher[i][j], 'big'))
-                        to_cipher[i][j] = temp_to_cipher.to_bytes((temp_to_cipher.bit_length() + 7) // 8, 'big')
-            # Which key should we use ?
-            count = 0
-            # Doing 1 round
-            for j in range(0,76):
+        for i, block in enumerate(blocks):
+            # handle CBC mode
+            if IV:
+                # if it's the first block, xor with the IV
+                blocks[i] = Threefish.xor_with_block(block, IV if i == 0 else blocks[i-1])
+            # rounds
+            for j in range(Threefish.NB_ROUNDS-1):
                 # Apply one of the subkey every 4 rounds
-                if (j % 4 == 0) or (j == 75):
-                    key = self.rounds_keys[count]
-                    # Go through words and xor keys
-                    for k in range(0, len(to_cipher[i])):
-                        temp_to_cipher = (int.from_bytes(to_cipher[i][k], 'big')) ^ (int.from_bytes(key[k], 'big'))
-                        to_cipher[i][k] = temp_to_cipher.to_bytes((temp_to_cipher.bit_length() + 7) // 8, 'big')
-                    # Increment key counter
-                    count += 1
-                to_cipher[i] = Threefish.threefish_round(to_cipher[i])
-            ciphered_text[i] = to_cipher[i]
+                if j % 4 == 0:
+                    key = self.rounds_keys[j//4]
+                    block = Threefish.xor_with_block(block, key)
+                block = Threefish.threefish_round(block)
 
-        result = b''
-        # Set result as a big bytes containing the entire ciphered text
-        for i in range(len(ciphered_text)):
-            for j in range(len(ciphered_text[i])):
-                result += ciphered_text[i][j]
+            key = self.rounds_keys[-1]
+            block = Threefish.xor_with_block(block, key)
+            block = Threefish.threefish_round(block)
 
-        return result
+            ciphered_blocks.append(block)
+            blocks[i] = block
 
-    def decipher(self, bytes_to_decipher, IV=None):
+        # join all the words
+        ciphertext = b''
+        for i in range(len(ciphered_blocks)):
+            for j in range(len(ciphered_blocks[i])):
+                ciphertext += ciphered_blocks[i][j]
+        return ciphertext
+
+    def decipher(self, ciphertext, IV=None):
         """
             Decipher the text
 
             Args:
-                bytes_to_decipher -- bytes -- the text to decipher
+                ciphertext -- bytes -- the text to decipher
 
             return the deciphered text
         """
-        # Put the text to decipher in blocks of words of W_LEN and of block_size in bytes (32 = 256 or 64 = 512 or 128 = 1024)
-        to_decipher = self.blockify(bytes_to_decipher, self.block_size)
-        deciphered_text = [None]*(len(to_decipher))
-        # Go through blocks
-        for i in range(len(to_decipher)-1, -1, -1):
-            # Which key should we use ?
-            count = 19
-            # Doing 1 round
-            for j in range(75, -1, -1):
-                # Invert the round
-                to_decipher[i] = Threefish.threefish_round_inv(to_decipher[i])
-                # Apply one of the subkey every 4 rounds
-                if (j % 4 == 0) or (j == 75):
-                    key = self.rounds_keys[count]
-                    # Go through words and add keys
-                    for k in range(0, len(to_decipher[i])):
-                        temp_to_decipher = (int.from_bytes(to_decipher[i][k], 'big')) ^ (int.from_bytes(key[k], 'big'))
-                        to_decipher[i][k] = temp_to_decipher.to_bytes((temp_to_decipher.bit_length() + 7) // 8, 'big')
-                    # Increment key counter
-                    count -= 1
-            # Treating CBC encryption instead of ECB if an Initialization Vector has been passed as parameters
-            if(IV):
-                if(i==0):
-                    for k in range(0, len(to_decipher[i])):
-                        temp_to_decipher = (int.from_bytes(to_decipher[i][k], 'big')) ^ (int.from_bytes(IV[k], 'big'))
-                        to_decipher[i][k] = temp_to_decipher.to_bytes((temp_to_decipher.bit_length() + 7) // 8, 'big')
-                else:
-                    for k in range(0, len(to_decipher[i])):
-                        temp_to_decipher = (int.from_bytes(to_decipher[i-1][k], 'big')) ^ (int.from_bytes(to_decipher[i][k], 'big'))
-                        to_decipher[i][k] = temp_to_decipher.to_bytes((temp_to_decipher.bit_length() + 7) // 8, 'big')
-            deciphered_text[i] = to_decipher[i]
+        # cut the ciphertext in blocks
+        ciphered_blocks = self.blockify(ciphertext, self.block_size)
 
-        result = b''
-        # Set result as a big bytes containing the entire ciphered text
-        for i in range(len(deciphered_text)):
-            for j in range(len(deciphered_text[i])):
-                result += deciphered_text[i][j]
+        blocks = [None]*(len(ciphered_blocks))
+        # loop through ciphered blocks
+        for i, ciphered_block in reversed(list(enumerate(ciphered_blocks))):
+
+            ciphered_block = self.threefish_round_inv(ciphered_block)
+            key = self.rounds_keys[-1]
+            ciphered_block = Threefish.xor_with_block(ciphered_block, key)
+
+            # rounds
+            for j in range(self.NB_ROUNDS-2, -1, -1):
+                # Invert the round
+                ciphered_block = self.threefish_round_inv(ciphered_block)
+                # Apply one of the subkey every 4 rounds
+                if j % 4 == 0:
+                    key = self.rounds_keys[j//4]
+                    ciphered_block = Threefish.xor_with_block(ciphered_block, key)
+            # handle CBC mode
+            if IV:
+                # if it's the first block, xor with the IV
+                ciphered_block = Threefish.xor_with_block(ciphered_block,
+                                                          IV if i == 0 else ciphered_blocks[i-1])
+
+            ciphered_blocks[i] = ciphered_block
+            blocks[i] = ciphered_blocks[i]
+
+        # join all words
+        plaintext = b''
+        for i in range(len(blocks)):
+            for j in range(len(blocks[i])):
+                plaintext += blocks[i][j]
 
         # remove padding
-        padding_size = int.from_bytes(result[-2:], byteorder="big")
-        result = result[:len(result) - padding_size]
+        padding_size = int.from_bytes(plaintext[-2:], byteorder="big")
+        plaintext = plaintext[:len(plaintext) - padding_size]
 
-        return result
+        return plaintext
 
 
 from _functions import (generate_random_unicode_string)
@@ -338,12 +340,12 @@ fish.key_schedule()
 to_cipher = bytes("yolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swagg",'utf-8')
 
 # IV to test CBC
-#InitVect = [bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8')]
+InitVect = [bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8'), bytes("abcdefgh", 'utf-8')]
 
 # Print in string encoded in utf-8
 print(to_cipher.decode('utf-8'))
 print("ciphertext :")
-things_ciphered = fish.cipher(to_cipher)
+things_ciphered = fish.cipher(to_cipher, InitVect)
 print(things_ciphered)
 """
 things_ciphered = int.from_bytes(things_ciphered, byteorder='big')
@@ -356,6 +358,6 @@ print(things_ciphered)
 """
 
 print("deciphered text :")
-deciphered = fish.decipher(things_ciphered)
+deciphered = fish.decipher(things_ciphered, InitVect)
 print(deciphered)
 print(deciphered.decode('utf-8'))
