@@ -140,11 +140,26 @@ class Threefish(object):
         """ permute the given block using the permutation table
 
             Args:
-                b -- list -- a block
+                block -- list of bytes -- a block
 
             return the block permuted
         """
         return [block[Threefish.P[i]] for i in range(len(block))]
+
+    @staticmethod
+    def substitute(block, mix_function):
+        """ permute the given block using the permutation table
+
+            Args:
+                block -- list of bytes -- a block
+                mix_function -- function -- the mix function to call
+
+            return the block substitute
+        """
+        # Subsitution: mix each pair of words in the given block
+        for i in range(0, len(block), 2):
+            block[i], block[i+1] = mix_function(block[i], block[i+1])
+        return block
 
     @staticmethod
     def blockify(text, block_size):
@@ -171,34 +186,36 @@ class Threefish(object):
             blocks.append(words)
         return blocks
 
-    def threefish_round(self, block):
+    @staticmethod
+    def threefish_round(block):
         """ take a block and make 1 round (substitution + permutation) on it
 
             Args:
-                block -- bytearray -- the block to round
+                block -- list of bytes -- the block to round
 
-            return a bytearray, the block after the round
+            return a list of bytes: the block after the round
         """
-        # Substitution (8*2) because we are taking pairs of numbers
-        for i in range(0, self.block_size // (8*2)):
-            block[2*i], block[2*i + 1] = Threefish.mix(block[2*i], block[2*i+1])
-        # Permutation
+        # Subsitution: mix each pair of words in the given block
+        block = Threefish.substitute(block, Threefish.mix)
+        # Permutation: apply permutation function on the block
         block = Threefish.permute(block)
+
         return(block)
 
-    def threefish_round_inv(self, block):
-        """ take a block and make 1 inverted round (substitution + permutation) on it
+    @staticmethod
+    def threefish_round_inv(block):
+        """ take a block and make 1 inverted round (permutation + substitution) on it
 
             Args:
-                block -- bytearray -- the block to invert 1 round
+                block -- list of bytes -- the block to invert 1 round
 
-            return a bytearray, the block after the inveted round
+            return a list of bytes: the block after the inverted round
         """
         # Permutation
         block = Threefish.permute(block)
-        # Subsitution (8*2) because we are taking pairs of numbers
-        for i in range(0, self.block_size // (8*2)):
-            block[2*i], block[2*i + 1] = Threefish.mix_inv(block[2*i], block[2*i+1])
+        # Subsitution: mix each pair of words in the given block
+        block = Threefish.substitute(block, Threefish.mix_inv)
+
         return(block)
 
     def cipher(self, bytes_to_cipher, IV=None):
@@ -242,7 +259,7 @@ class Threefish(object):
                         to_cipher[i][k] = temp_to_cipher.to_bytes((temp_to_cipher.bit_length() + 7) // 8, 'big')
                     # Increment key counter
                     count += 1
-                to_cipher[i] = self.threefish_round(to_cipher[i])
+                to_cipher[i] = Threefish.threefish_round(to_cipher[i])
             ciphered_text[i] = to_cipher[i]
 
         result = b''
@@ -272,7 +289,7 @@ class Threefish(object):
             # Doing 1 round
             for j in range(75, -1, -1):
                 # Invert the round
-                to_decipher[i] = self.threefish_round_inv(to_decipher[i])
+                to_decipher[i] = Threefish.threefish_round_inv(to_decipher[i])
                 # Apply one of the subkey every 4 rounds
                 if (j % 4 == 0) or (j == 75):
                     key = self.rounds_keys[count]
