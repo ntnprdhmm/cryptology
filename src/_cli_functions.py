@@ -7,6 +7,7 @@
 import curses
 from src.SHA1 import SHA1
 from src.CramerShoup import CramerShoup
+from src.Threefish import Threefish
 from src._utils import (read_file)
 from src._functions import (generate_random_unicode_string)
 from src._cli_utils import (SCREEN, wait_to_continu, print_option_header,
@@ -138,12 +139,15 @@ def threefish_cipher():
         SCREEN.addstr("You said that you already have a key.\n")
         key = load_data(data_name="threefish key")
 
+    # create a new Threefish instance
+    threefish = Threefish(block_size//8, key)
+    threefish.key_schedule()
+
     data = load_data(data_name="data to cipher")
     SCREEN.addstr("\nCiphering...\n\n")
-    # TODO: call the cipher method of threefish
-    ciphertext = "yoloo"
+    ciphertext = threefish.cipher(data)
 
-    output_result(ciphertext, "threefish.cipher")
+    output_result(str(int.from_bytes(ciphertext, byteorder='big')), "threefish.cipher")
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
@@ -152,17 +156,32 @@ def threefish_decipher():
         and return deciphertext to him
     """
     print_option_header("decipher a file with threefish")
+
+    # ask the block size
+    block_size = int(ask_question(
+        question="Block size, in bits",
+        answers=['256', '512', '1024'],
+        default_answer='256'
+    ))
+
+    # ask for the key
+    key = load_data(data_name="threefish key")
+
+    # create a new Threefish instance
+    threefish = Threefish(block_size//8, key)
+    threefish.key_schedule()
+
     SCREEN.addstr("Please put your ciphertext in 'outputs/threefish.cipher' \n")
     # wait
     wait_to_continu()
     # cipher
     SCREEN.addstr("Reading the file...\n")
-    content = read_file("threefish.cipher", directory="outputs")
+    data = read_file("threefish.cipher", directory="outputs")
+    data = int(data).to_bytes((block_size + 7)//8, byteorder='big')
     SCREEN.addstr("Deciphering the text...\n")
-    # TODO: call the decipher method of threefish
-    deciphertext = "yoloo"
+    deciphertext = threefish.decipher(data)
 
-    output_result(deciphertext, "threefish.decipher")
+    output_result(deciphertext.decode('utf-8'), "threefish.decipher")
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 
