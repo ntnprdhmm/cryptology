@@ -16,6 +16,7 @@ class Threefish(object):
                 number on 64 bits (&)
             P -- tuple of int -- permutation table for the permutation function
             NB_ROUNDS -- integer -- the number of rounds
+            NB_ROTATIONS -- integer -- the number of rotations to do in the mix function
 
         Attributes:
             block_size -- integer -- 32, 64 or 128 -- the size of a block, in bytes
@@ -26,8 +27,9 @@ class Threefish(object):
     C = bytearray.fromhex("1bd11bdaa9fc1a22")
     W_LEN = 8
     MASK = 0xffffffffffffffff
-    P = (0, 3, 2, 1, 4, 7, 5, 6, 15, 9, 11, 13, 8, 14, 10, 12)
+    P = (1, 0, 3, 2, 5, 4, 7, 6, 9, 8, 11, 10, 13, 12, 15, 14)
     NB_ROUNDS = 76
+    NB_ROTATIONS = 49
 
     def __init__(self, block_size, u_key):
         """
@@ -103,7 +105,7 @@ class Threefish(object):
         new_m1 = (int.from_bytes(m1, 'big') + int.from_bytes(m2, 'big')) & Threefish.MASK
 
         # Make the rotation in int
-        new_rot = rotl(int.from_bytes(m2, byteorder='big'), rotations=42, w=Threefish.W_LEN*8)
+        new_rot = rotl(int.from_bytes(m2, byteorder='big'), rotations=Threefish.NB_ROTATIONS, w=Threefish.W_LEN*8)
 
         # Xor new_m1 with new_rot
         new_m2 = new_m1 ^ new_rot
@@ -127,7 +129,7 @@ class Threefish(object):
         temp_m2 = int.from_bytes(m1, 'big') ^ int.from_bytes(m2, 'big')
 
         # Make the rotr to cancel rotl
-        new_rot = rotr(temp_m2, rotations=42, w=Threefish.W_LEN*8)
+        new_rot = rotr(temp_m2, rotations=Threefish.NB_ROTATIONS, w=Threefish.W_LEN*8)
 
         # Retrieve m1 by substracting m2
         new_m1 = ((int.from_bytes(m1, 'big')) - new_rot) & Threefish.MASK
@@ -161,6 +163,7 @@ class Threefish(object):
         # Subsitution: mix each pair of words in the given block
         for i in range(0, len(block), 2):
             block[i], block[i+1] = mix_function(block[i], block[i+1])
+
         return block
 
     @staticmethod
@@ -184,6 +187,7 @@ class Threefish(object):
                      for j in range(0, block_size // Threefish.W_LEN)]
             # append the words to the list of blocks
             blocks.append(words)
+
         return blocks
 
     @staticmethod
@@ -218,9 +222,16 @@ class Threefish(object):
 
         return(block)
 
-
     @staticmethod
     def xor_with_block(block, key):
+        """ xor a block with a key
+
+            Args:
+                block -- list of bytes
+                key -- list of bytes
+
+            return the block after xor on each words
+        """
         # Go through words and xor key
         for j, word in enumerate(block):
             temp_to_cipher = (int.from_bytes(word, 'big')) ^ (int.from_bytes(key[j], 'big'))
@@ -328,32 +339,31 @@ class Threefish(object):
         plaintext = plaintext[:len(plaintext) - padding_size]
 
         return plaintext
-
 """
 from _functions import (generate_random_unicode_string)
 
 #### TEST PART ####
 # Key randomly generated
 # Create a Threefish on 1024 bits block with the key
-key = bytes(generate_random_unicode_string(32 + 16), 'utf-8')
-fish = Threefish(32, key)
+key_size = 64
+key = bytes(generate_random_unicode_string(key_size + 16), 'utf-8')
+fish = Threefish(key_size, key)
 # Generate the keys
 fish.key_schedule()
 
 # Bytes size = 10240 -> 81920 bits
-to_cipher = bytes("yolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swaggyolo swagg yolo swagg",'utf-8')
+to_cipher = bytes("azeaze 448648qsdqsdqsdqs yolo swagg azeaze azeaz eazeaze azeazeazazeaze 44864eazeaz",'utf-8')
 
-
-IV = bytes(generate_random_unicode_string(32), 'utf-8')
+IV = bytes(generate_random_unicode_string(key_size), 'utf-8')
 
 # Print in string encoded in utf-8
 print(to_cipher.decode('utf-8'))
 print("ciphertext :")
-things_ciphered = fish.cipher(to_cipher, IV)
+things_ciphered = fish.cipher(to_cipher)
 print(things_ciphered)
 
 print("deciphered text :")
-deciphered = fish.decipher(things_ciphered, IV)
+deciphered = fish.decipher(things_ciphered)
 print(deciphered)
 print(deciphered.decode('utf-8'))
 """
