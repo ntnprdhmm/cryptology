@@ -12,7 +12,8 @@ from src._utils import (read_file)
 from src._functions import (generate_random_unicode_string)
 from src._cli_utils import (SCREEN, wait_to_continu, print_option_header,
                            print_data, load_data, output_result, ask_question,
-                           print_instruction, print_help, print_result, print_info)
+                           print_instruction, print_help, print_result, print_info,
+                           output_in_file)
 
 def sha1_hash():
     """ 1 - Ask the user to enter the data he wants to hash and hash it.
@@ -147,6 +148,10 @@ def threefish_cipher():
     ) == "CBC"
 
     if cbc:
+        print_info("\nThe format of the initialization vector is \n")
+        print_info("a unicode string of length block_size/8. \n")
+        print_info("With the block_size you choose, the IV must have a length of %d \n\n"
+                      % block_size)
         # ask if user already has a initialization vector
         generate_iv = ask_question(
             question="Do you have a initialization vector ? If no, it will be generated.",
@@ -167,11 +172,15 @@ def threefish_cipher():
     threefish = Threefish(block_size//8, key)
     threefish.key_schedule()
 
+    # cipher
     data = load_data(data_name="data to cipher")
     SCREEN.addstr("\nCiphering...\n\n")
     ciphertext = threefish.cipher(data, iv if cbc else None)
 
-    output_result(ciphertext, "threefish.cipher", write_bytes=True)
+    # save ciphertext
+    print_help("The ciphertext will be save in a file.\n")
+    output_in_file(ciphertext, "threefish.cipher", write_bytes=True)
+
     # wait before redirect to main menu
     wait_to_continu(next_step=show_main_menu)
 

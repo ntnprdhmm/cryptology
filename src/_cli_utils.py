@@ -100,7 +100,22 @@ def load_data(data_name=None, to_string=False):
 
     return str(data)[2:-1] if to_string else data
 
-def output_result(data, default_filename="None", write_bytes=False):
+def output_in_file(data, default_filename, write_bytes=False):
+    print_help("The file will be created in the 'outputs' directory.\n")
+    print_instruction("Please enter a name for the file ")
+    if default_filename:
+        print_info("(" + default_filename + ")")
+    SCREEN.addstr(": \n")
+    # read the filename
+    curses.echo()
+    filename = str(SCREEN.getstr())[2:-1]
+    if len(filename) == 0:
+        filename = default_filename
+    # write in the file
+    write_file(filename, data, write_bytes=write_bytes)
+    print_result("The output has been wrote in '/outputs/" + filename + "' \n")
+
+def output_result(data, default_filename="None"):
     """ Ask the user where he wants the result to be output
             - print it in the console
             - save it in a file
@@ -123,19 +138,7 @@ def output_result(data, default_filename="None", write_bytes=False):
         SCREEN.addstr(data + "\n")
     else:
         SCREEN.addstr("You choose 'in a file'.\n\n")
-        print_help("The file will be created in the 'outputs' directory.\n")
-        print_instruction("Please enter a name for the file ")
-        if default_filename:
-            print_info("(" + default_filename + ")")
-        SCREEN.addstr(": \n")
-        # read the filename
-        curses.echo()
-        filename = str(SCREEN.getstr())[2:-1]
-        if len(filename) == 0:
-            filename = default_filename
-        # write in the file
-        write_file(filename, data, write_bytes=write_bytes)
-        print_result("The output has been wrote in '/outputs/" + filename + "' \n")
+        output_in_file(data, default_filename)
 
 def print_data(data, message=None, done=False):
     """ Print some data at the screen
