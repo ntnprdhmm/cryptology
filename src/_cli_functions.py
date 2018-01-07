@@ -118,10 +118,10 @@ def threefish_cipher():
         default_answer='256'
     ))
 
-    key_length = ((block_size + 2*64) // 8)
+    key_length = ((block_size // 2 + 2*64) // 8)
     # ask the key, or generate it
     print_info("\nThe format of the key for threefish is the following: \n")
-    print_info("a unicode string of length (block_size + 2*64 bits) / 8. \n")
+    print_info("a unicode string of length (block_size / 2 + 2*64 bits) / 8. \n")
     print_info("(the 2 last words are the tweaks) \n")
     print_info("With the block_size you choose, the key must have a length of %d \n\n"
                   % key_length)
@@ -169,7 +169,7 @@ def threefish_cipher():
             iv = load_data(data_name="initialization vector")
 
     # create a new Threefish instance
-    threefish = Threefish(block_size//8, key)
+    threefish = Threefish(block_size//16, key)
     threefish.key_schedule()
 
     # cipher
@@ -213,7 +213,7 @@ def threefish_decipher():
         iv = load_data(data_name="initialization vector")
 
     # create a new Threefish instance
-    threefish = Threefish(block_size//8, key)
+    threefish = Threefish(block_size//16, key)
     threefish.key_schedule()
 
     SCREEN.addstr("Please put your ciphertext in 'outputs/threefish.cipher' \n")
