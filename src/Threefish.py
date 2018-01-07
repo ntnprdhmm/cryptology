@@ -339,31 +339,3 @@ class Threefish(object):
         plaintext = plaintext[:len(plaintext) - padding_size]
 
         return plaintext
-"""
-from _functions import (generate_random_unicode_string)
-
-#### TEST PART ####
-# Key randomly generated
-# Create a Threefish on 1024 bits block with the key
-key_size = 64
-key = bytes(generate_random_unicode_string(key_size + 16), 'utf-8')
-fish = Threefish(key_size, key)
-# Generate the keys
-fish.key_schedule()
-
-# Bytes size = 10240 -> 81920 bits
-to_cipher = bytes("azeaze 448648qsdqsdqsdqs yolo swagg azeaze azeaz eazeaze azeazeazazeaze 44864eazeaz",'utf-8')
-
-IV = bytes(generate_random_unicode_string(key_size), 'utf-8')
-
-# Print in string encoded in utf-8
-print(to_cipher.decode('utf-8'))
-print("ciphertext :")
-things_ciphered = fish.cipher(to_cipher)
-print(things_ciphered)
-
-print("deciphered text :")
-deciphered = fish.decipher(things_ciphered)
-print(deciphered)
-print(deciphered.decode('utf-8'))
-"""

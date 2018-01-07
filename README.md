@@ -33,6 +33,17 @@ The script that launchs the cli is at the root of the project. So you just have 
 python3 cli.py
 ```
 
+**WARNING**
+The Threefish decryption option in the cli is possessed by **dark magic**, and works only once in two.
+It may be a problem with stdin/stdout.
+So you can use *cli.py* for Threefish, but they may be some problems.
+We built another cli (less advanced, but this one works perfectly) for Threefish. To run it, go to
+the root of the project and execute this script with Python 3:
+
+```
+python3 cli_threefish.py
+```
+
 ## Run the tests
 
 ```
