@@ -198,9 +198,11 @@ def threefish_decipher():
     ))
 
     # ask for the key
+    print_info('\n')
     key = load_data(data_name="threefish key")
 
     # ask the cipher mode
+    print_info('\n')
     cbc = ask_question(
         question="Choose the cipher mode",
         answers=['ECB', 'CBC'],
@@ -209,14 +211,14 @@ def threefish_decipher():
 
     if cbc:
         # ask for the IV
-        SCREEN.addstr("You said that you already have an initialization vector.\n")
+        SCREEN.addstr("\nYou said that you already have an initialization vector.\n")
         iv = load_data(data_name="initialization vector")
 
     # create a new Threefish instance
     threefish = Threefish(block_size//8, key)
     threefish.key_schedule()
 
-    SCREEN.addstr("Please put your ciphertext in 'outputs/threefish.cipher' \n")
+    SCREEN.addstr("\nPlease put your ciphertext in 'outputs/threefish.cipher' \n")
     # wait
     wait_to_continu()
     # cipher
